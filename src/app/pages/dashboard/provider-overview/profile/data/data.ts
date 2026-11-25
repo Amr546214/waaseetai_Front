@@ -30,6 +30,7 @@ import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-do
 import { KycAccess, KycDocumentKey } from '../../../../../core/models/kyc-document.model';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
+import { timezoneForCountry, timezoneOptions } from '../../../../../shared/data/country-timezones';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { IdentityCheckService } from '../../../../../core/services/identity-check.service';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
@@ -157,6 +158,7 @@ export class Data implements OnInit {
   private route = inject(ActivatedRoute);
   // Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
   readonly countryNames = COUNTRY_NAMES;
+  readonly timezoneOptions = timezoneOptions();
   readonly citiesOf = citiesOf;
   readonly cityPlaceholder = cityPlaceholder;
   private profileService = inject(ProviderProfileService);
@@ -295,7 +297,7 @@ export class Data implements OnInit {
     }
     if (field === 'timezone') {
       const v = String(snap['timezone'] ?? 'Asia/Riyadh').trim();
-      if (v === 'Asia/Riyadh') return 'توقيت الرياض (GMT+3)';
+      const opt = timezoneOptions().find(o => o.value === v); if (opt) return opt.label;
       return v || 'فارغ (غير محدد)';
     }
     const val = String(snap[field] ?? '').trim();
@@ -416,6 +418,12 @@ export class Data implements OnInit {
     });
 
     linkCountryCity(this.profileForm, this.destroyRef, { country: 'country', city: 'city', requireCity: false });
+    // the time zone follows the country the person picks (a prefilled / stored country never overrides a saved zone)
+    const countryCtl = this.profileForm.get('country');
+    countryCtl?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => {
+      const zone = timezoneForCountry(v); const tz = this.profileForm.get('timezone');
+      if (countryCtl.dirty && zone && tz && tz.value !== zone) { tz.setValue(zone); tz.markAsDirty(); }
+    });
 
     this.profileForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       if (!this.isPatchingProfile && this.currentProfileData) {
