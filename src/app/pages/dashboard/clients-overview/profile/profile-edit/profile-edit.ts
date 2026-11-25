@@ -17,6 +17,7 @@ import type { CompletionMissingItem } from '../../../../../core/services/profile
 import type { ReviewEntry } from '../../../../../core/models/review-status.model';
 import { paypalEmailError, paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
+import { ClientOnboardingStateService } from '../../../../../core/services/client-onboarding-state.service';
 import { TourService } from '../../../../../core/tour/tour.service';
 import { CLIENT_PROFILE_EDIT_TOUR } from '../../../../../core/tour/tours/client-profile-edit.tour';
 import { AiNoteComponent } from '../../../../../shared/ai/ai-note.component';
@@ -72,6 +73,7 @@ export class ProfileEdit {
 
 	activeTab = signal<Tab>('profile');
 	private readonly tour = inject(TourService);
+	readonly onboarding = inject(ClientOnboardingStateService);
 
 	/** «ساعدني أكتب نبذة»: the AI drafts the bio from the form (or polishes the user's own text). The text only goes into the box: the user reviews it and saves it (or not). */
 	readonly bioAiBusy = signal(false);
