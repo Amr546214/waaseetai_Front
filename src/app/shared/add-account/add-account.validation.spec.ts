@@ -61,25 +61,18 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
       expect(c.flow().map(f => f.id)).toEqual(['panel-1', 'panel-review']);
     });
 
-    it('affiliate: the main channel type is required before moving on', () => {
+    it('affiliate: the flow is two steps and sending it adds the marketer account and moves into its panel (its setup page collects the channel)', () => {
+      (TestBed.inject(AccountService).switchActiveRole as ReturnType<typeof vi.fn>).mockReturnValue(of({ success: true }));
       c.selectType('affiliate'); render();
-      c.nextStep(); render();
-      expect(c.stepIdx()).toBe(1);
-      expect(summary()).toContain('نوع القناة الرئيسية');
-      c.ctl.chType.setValue('YouTube'); c.nextStep();
-      expect(c.stepIdx()).toBe(2);
-      expect(c.missing()).toEqual([]);
-    });
-
-    it('affiliate: a complete wizard sends AFFILIATE', () => {
-      c.selectType('affiliate'); c.ctl.chType.setValue('YouTube'); c.stepIdx.set(2);
-      c.submit();
-      expect(add).toHaveBeenCalledWith('AFFILIATE', expect.objectContaining({ chType: 'YouTube' }));
+      expect(c.flow().map(f => f.id)).toEqual(['panel-1', 'panel-review']);
+      c.stepIdx.set(1); c.submit();
+      expect(add).toHaveBeenCalledWith('AFFILIATE', expect.anything());
+      expect(TestBed.inject(AccountService).switchActiveRole).toHaveBeenCalledWith('AFFILIATE');
     });
 
     it('409 "already owned" shows the Arabic server message, refreshes the owned roles, no English', () => {
       add.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { success: false, message: 'أنت تمتلك هذا الحساب بالفعل' } })));
-      c.selectType('affiliate'); fillProvider(); c.stepIdx.set(2);
+      c.selectType('affiliate'); fillProvider(); c.stepIdx.set(1);
       getTypes.mockClear();
       c.submit(); render();
       expect(c.errorMessage()).toBe('أنت تمتلك هذا الحساب بالفعل');
@@ -91,7 +84,7 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
     it('server 500 shows the fixed Arabic message, never "Internal Server Error"; details only in the console', () => {
       const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
       add.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500, error: { message: 'Internal Server Error' } })));
-      c.selectType('affiliate'); fillProvider(); c.stepIdx.set(2);
+      c.selectType('affiliate'); fillProvider(); c.stepIdx.set(1);
       c.submit(); render();
       expect(c.errorMessage()).toBe(FIXED);
       expect(banner()).toContain(FIXED);
@@ -103,7 +96,7 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
 
     it('a 500 whose Arabic message comes from the backend and a network failure are both Arabic', () => {
       const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      c.selectType('affiliate'); fillProvider(); c.stepIdx.set(2);
+      c.selectType('affiliate'); fillProvider(); c.stepIdx.set(1);
       add.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 0, error: null })));
       c.submit();
       expect(c.errorMessage()).not.toMatch(/[A-Za-z]/);
@@ -111,16 +104,10 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
     });
 
     it('the submit button is never disabled by validity (only while submitting)', () => {
-      c.selectType('affiliate'); c.stepIdx.set(2); render();
+      c.selectType('affiliate'); c.stepIdx.set(1); render();
       const btn = Array.from(el().querySelectorAll('button')).find(b => b.textContent?.includes('إرسال الطلب')) as HTMLButtonElement;
       expect(btn.disabled).toBe(false);
     });
 
-    it('going back clears the previous summary', () => {
-      c.selectType('affiliate'); c.nextStep();
-      expect(c.missing().length).toBeGreaterThan(0);
-      c.prevStep();
-      expect(c.missing()).toEqual([]);
-    });
   });
 }
