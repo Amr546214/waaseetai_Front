@@ -422,7 +422,7 @@
 <div class="flex flex-col gap-2"><ws-legal-name-field [alwaysEdit]="true" (saved)="refreshIdentityState()" /></div>
 <div class="flex flex-col gap-2">
   <label for="identity-birth-date" class="text-xs font-bold">تاريخ الميلاد كما في الوثيقة</label>
-  <input id="identity-birth-date" type="date" [formControl]="$any(setupForm.get('profData.dob'))" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-transparent" />
+  <ws-birth-date-field [formControl]="$any(setupForm.get('profData.dob'))" inputId="identity-birth-date" inputClass="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-transparent" data-testid="identity-birth-date" />
   <small>احفظ بيانات الهوية بعد استكمال التاريخ؛ الصورة الموجودة تبقى محفوظة.</small>
 </div>
 <div class="flex flex-col gap-2">
