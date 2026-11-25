@@ -419,7 +419,12 @@
   </select>
   @if (documentError('idDocumentType'); as error) { <p id="identity-error-idDocumentType" class="text-sm text-red-400" role="alert">{{ error }}</p> }
 </div>
-<div class="flex flex-col gap-2"><ws-legal-name-field [alwaysEdit]="true" /></div>
+<div class="flex flex-col gap-2"><ws-legal-name-field [alwaysEdit]="true" (saved)="refreshIdentityState()" /></div>
+<div class="flex flex-col gap-2">
+  <label for="identity-birth-date" class="text-xs font-bold">تاريخ الميلاد كما في الوثيقة</label>
+  <input id="identity-birth-date" type="date" [formControl]="$any(setupForm.get('profData.dob'))" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-transparent" />
+  <small>احفظ بيانات الهوية بعد استكمال التاريخ؛ الصورة الموجودة تبقى محفوظة.</small>
+</div>
 <div class="flex flex-col gap-2">
   <label for="identity-document-number" class="block text-xs font-bold text-slate-700 dark:text-slate-400">رقم الوثيقة <span class="ws-req" aria-hidden="true">*</span></label>
   <input id="identity-document-number" formControlName="idNumber" aria-required="true" placeholder="الرقم كما هو مكتوب في الوثيقة" [attr.aria-invalid]="documentError('idNumber') ? 'true' : null" [attr.aria-describedby]="documentError('idNumber') ? 'identity-error-idNumber' : null" maxlength="40" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
@@ -435,7 +440,9 @@
               <div class="doc-desc">الوجه الأمامي للهوية الوطنية أو الإقامة، JPG/PNG/PDF حد أقصى 10MB</div>
             </div>
             <span class="ai-status-badge" [class.pending]="!getUploadState('frontId')" [class.scanning]="getUploadState('frontId')?.status === 'uploading'" [class.verified]="getUploadState('frontId')?.status === 'uploaded'" [class.rejected]="getUploadState('frontId')?.status === 'error'" aria-live="polite">
-              @if (!getUploadState('frontId')) {
+              @if (storedFrontAccess() && !kycRejectedReason() && !getUploadState('frontId')) {
+                محفوظ
+              } @else if (!getUploadState('frontId')) {
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>
                 في الانتظار
               } @else if (getUploadState('frontId').status === 'uploading') {
@@ -452,8 +459,10 @@
           </div>
           @if (storedFrontAccess() && !uploadedFrontIdName()) {
             <div class="uploaded-file visible"><div style="flex:1;min-width:0"><div class="uploaded-name">يوجد مستند مرفوع سابقًا</div></div><app-kyc-document-link document="provider_front_id" [access]="storedFrontAccess()" label="عرض" /></div>
+            @if (!kycRejectedReason()) { <p class="text-sm" data-testid="saved-identity-kept">سيُستخدم المستند المحفوظ للمطابقة. استكمل البيانات الناقصة واحفظها دون إعادة رفع الصورة.</p> }
+            @if (!replacingFront() && !kycRejectedReason()) { <button type="button" class="text-sm underline" (click)="replacingFront.set(true)">استبدال المستند بصورة جديدة</button> }
           }
-          @if (!uploadedFrontIdName()) {
+          @if (!uploadedFrontIdName() && (!storedFrontAccess() || replacingFront() || kycRejectedReason())) {
             <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر صورة الوجه الأمامي للهوية">
               <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، وجه" (change)="onFileSelected($event, 'frontId')">
               <div class="upload-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg></div>
