@@ -112,7 +112,7 @@ export class ProviderAccessService {
 		if (!u || u.accountType === AccountType.PROVIDER_COMPANY) return;
 		if (u.activeRole && u.activeRole !== UserRole.PROVIDER) return;
 		const url = this.router.url ?? '';
-		if (!/^\/provider-overview(\/|\?|#|$)/.test(url) || isOnboardingAllowedPath(url)) return;
+		if (!/^\/provider-overview(\/|\?|#|$)/.test(url) || isOnboardingAllowedPath(url, s.state)) return;
 		this.router.navigateByUrl(accessRedirectUrl(s));
 	}
 

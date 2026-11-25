@@ -47,6 +47,15 @@ describe('providerProfileCompleteGuard (backend access-state decides for individ
 		});
 	}
 
+	it('individual + setup or test unfinished: the approval pages (models, actions log, profile data / specialties) go to the wizard; help and account settings stay open', async () => {
+		for (const s of ['SETUP_INCOMPLETE', 'ASSESSMENT_REQUIRED'] as const) {
+			TestBed.resetTestingModule();
+			setup('PROVIDER_INDIVIDUAL', () => of(st(s)));
+			for (const u of ['business-models/accreditation/new', 'account-actions', 'profile/data', 'profile/specialties']) expect(await run('/provider-overview/' + u), s + u).toBe(WIZARD);
+			for (const u of ['help', 'notifications', 'settings/account']) expect(await run('/provider-overview/' + u), s + u).toBe(true);
+		}
+	});
+
 	it('individual + not approved: onboarding routes stay open', async () => {
 		const { loadSpy } = setup('PROVIDER_INDIVIDUAL', () => of(st('PENDING_REVIEW')));
 		for (const u of ['accreditation-status', 'profile/setup', 'profile/data', 'business-models/accreditation/new', 'business-models/accreditation/list', 'help', 'help/tickets/new', 'notifications', 'settings/account']) {
@@ -131,5 +140,26 @@ describe('providerProfileCompleteGuard: a REJECTED identity keeps the provider o
 	it('without a rejection the onboarding pages open as before; a failed read never locks the provider out', async () => {
 		setup(() => of(st('SETUP_INCOMPLETE'))); expect(await run('/provider-overview/notifications')).toBe(true);
 		setup(() => throwError(() => new Error('x'))); expect(await run('/provider-overview/notifications')).toBe(true);
+	});
+});
+
+describe('isOnboardingAllowedPath × the access state', () => {
+	const later = ['/provider-overview/business-models/accreditation/new', '/provider-overview/account-actions', '/provider-overview/profile/data', '/provider-overview/profile/specialties'];
+	const base = ['/provider-overview/profile/setup', '/provider-overview/help/tickets', '/provider-overview/notifications', '/provider-overview/settings/account'];
+	it('while the setup form or the test is unfinished only the wizard, help, notifications and the account settings open', () => {
+		for (const st of ['SETUP_INCOMPLETE', 'ASSESSMENT_REQUIRED']) {
+			for (const u of base) expect(isOnboardingAllowedPath(u, st), st + u).toBe(true);
+			for (const u of later) expect(isOnboardingAllowedPath(u, st), st + u).toBe(false);
+		}
+	});
+	it('once the test is done (sample required, review, completion, rejected) the approval pages open too; everything operating stays closed', () => {
+		for (const st of ['SAMPLE_REQUIRED', 'PENDING_REVIEW', 'COMPLETION_REQUIRED', 'REJECTED']) {
+			for (const u of [...base, ...later]) expect(isOnboardingAllowedPath(u, st), st + u).toBe(true);
+			expect(isOnboardingAllowedPath('/provider-overview/projects/active', st)).toBe(false);
+			expect(isOnboardingAllowedPath('/provider-overview/business-models/market', st)).toBe(false);
+		}
+	});
+	it('without a state the full list applies, as before', () => {
+		for (const u of [...base, ...later]) expect(isOnboardingAllowedPath(u), u).toBe(true);
 	});
 });

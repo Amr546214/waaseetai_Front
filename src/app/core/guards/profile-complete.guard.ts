@@ -29,24 +29,31 @@ import { ProviderApiService } from '../services/provider-api.service';
  * (GET /provider/access-state -> canAccessDashboard). These paths (relative to /provider-overview) stay open meanwhile because they are how
  * onboarding gets finished or how the provider gets help; everything else goes to the status page.
  */
-export const ONBOARDING_ALLOWED_PATHS: readonly string[] = [
+/** open at every stage of onboarding: the wizard itself, help, notifications and the account settings */
+export const ONBOARDING_BASE_PATHS: readonly string[] = ['profile/setup', 'help', 'bebo', 'notifications', 'settings/account'];
+/** open only once the setup form AND the test are done (SAMPLE_REQUIRED onwards): the approval sample, the actions log and the profile / specialty pages */
+export const ONBOARDING_LATER_PATHS: readonly string[] = [
   'account-actions',
   'accreditation-status',
-  'profile/setup',
   'profile/data',
   'profile/specialties',
   'business-models/accreditation',
   'business-models/center/accreditation-details',
-  'help',
-  'bebo', // Existing assistant tools remain available during onboarding.
-  'notifications',
-  'settings/account',
 ];
+export const ONBOARDING_ALLOWED_PATHS: readonly string[] = [...ONBOARDING_BASE_PATHS, ...ONBOARDING_LATER_PATHS];
 
-/** Path under /provider-overview (no query/hash/leading slash) -> may a not-yet-approved individual provider open it? */
-export function isOnboardingAllowedPath(url: string): boolean {
+/** stages in which ONLY the wizard (and help / account pages) may be opened: the form or the test is not finished yet */
+export const SETUP_ONLY_STATES: readonly string[] = ['SETUP_INCOMPLETE', 'ASSESSMENT_REQUIRED'];
+
+/**
+ * Path under /provider-overview (no query/hash/leading slash) -> may a not-yet-approved individual provider open it?
+ * With the access state known: while the setup form or the test is unfinished only the base paths open; afterwards the approval pages open too.
+ * Without a state (not read yet) the full list applies, exactly as before.
+ */
+export function isOnboardingAllowedPath(url: string, state?: string | null): boolean {
   const path = (url || '').split(/[?#]/)[0].replace(/^\/?provider-overview\/?/, '').replace(/^\/+|\/+$/g, '');
-  return ONBOARDING_ALLOWED_PATHS.some(p => path === p || path.startsWith(p + '/'));
+  const list = state && SETUP_ONLY_STATES.includes(state) ? ONBOARDING_BASE_PATHS : ONBOARDING_ALLOWED_PATHS;
+  return list.some(p => path === p || path.startsWith(p + '/'));
 }
 
 /** the wizard itself (the identity step lives there) */
@@ -75,7 +82,7 @@ export const providerProfileCompleteGuard: CanActivateChildFn = (childRoute, sta
         if (isOnboardingAllowedPath(url)) {
           // a REJECTED identity keeps the provider on the setup page: the other onboarding pages (notifications, help, settings...) wait until new documents are sent. A failed read never locks anyone out.
           if (isSetupPath(url)) return of(true);
-          return providerAccess.load().pipe(map(a => a.identityRejected === true ? router.parseUrl(PROVIDER_SETUP_URL) : true), catchError(() => of(true)));
+          return providerAccess.load().pipe(map(a => a.identityRejected === true || !isOnboardingAllowedPath(url, a.state) ? router.parseUrl(PROVIDER_SETUP_URL) : true), catchError(() => of(true)));
         }
         const toStatus = () => router.parseUrl(PROVIDER_ACCESS_STATUS_URL);
         return providerAccess.load().pipe(
