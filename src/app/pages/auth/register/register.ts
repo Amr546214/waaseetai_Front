@@ -896,6 +896,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	/** Masked email for the verification step, same format as the design (P-AU-009 maskEmail). */
 	readonly deliveryHint = OTP_DELIVERY_HINT;
+	/** the generic «if an account is waiting…» notices add nothing the help box does not say: they are not shown as a banner */
+	get genericOtpNotice(): boolean { return this.otpNotice === REGISTER_CODE_STEP_MESSAGE || this.otpNotice === REGISTER_RESEND_MESSAGE; }
 
 	get maskedEmail(): string {
 		const e: string = this.basicInfoForm.get('email')?.value || '';
