@@ -734,12 +734,13 @@ export class Sidebar implements OnInit {
 			items.forEach((item, idx) => {
 				if (item.type === 'header' || item.action === 'logout') { out.push(item); return; }
 				if (item.children) {
-					const open = (c: NavItem) => !!c.route && isOnboardingAllowedPath(c.route);
+					const state = this.providerAccess.latest()?.state;
+					const open = (c: NavItem) => !!c.route && isOnboardingAllowedPath(c.route, state);
 					if (!item.children.some(open)) { out.push(off(item)); return; }
 					out.push({ ...item, children: item.children.map(c => open(c) ? c : { ...c, disabled: true, disabledReason: reason }) });
 					return;
 				}
-				out.push(item.route && isOnboardingAllowedPath(item.route) ? item : off(item));
+				out.push(item.route && isOnboardingAllowedPath(item.route, this.providerAccess.latest()?.state) ? item : off(item));
 			});
 			return out;
 		}
