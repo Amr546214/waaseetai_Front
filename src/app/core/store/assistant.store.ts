@@ -1,3 +1,8 @@
+import { UserRole } from '../models/auth.model';
+import { mayBeTourRequest, tourIntentFor } from '../tour/tour-intent';
+import { ROLE_TOURS } from '../tour/tours/role-tours';
+import { TourService } from '../tour/tour.service';
+import { ClientOnboardingStateService } from '../services/client-onboarding-state.service';
 import { AssistantExamState } from './assistant-exam-state.service';
 import { DestroyRef, Injectable, Injector, NgZone, PLATFORM_ID, computed, effect, inject, signal, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
@@ -560,6 +565,8 @@ export class AssistantStore {
 		const question = rawQuestion.trim();
 		if (!question || this.busy()) return false;
 		this.stopLive(); this.cancelRecording();
+		// «اشرحلي لوحتي»: the dashboard tour starts by itself (it walks to the dashboard when the person is elsewhere); nothing goes upstream.
+		if (this.startTourFromQuestion(question)) return true;
 		// Exact local Bebo command → animate locally; never sent upstream.
 		const action = commandFor(question);
 		if (action) {
@@ -576,6 +583,23 @@ export class AssistantStore {
 		this.messages.update((list) => [...(list.at(-1)?.role === 'user' ? list.slice(0, -1) : list), { role: 'user' as const, text: question, createdAt: Date.now() }].slice(-100));
 		this.lastQuestion.set(question);
 		this.send(question);
+		return true;
+	}
+
+	/** a request to be shown the dashboard runs the role's guided tour; a client whose dashboard is still closed (identity under review) is told so instead */
+	private startTourFromQuestion(question: string): boolean {
+		if (!mayBeTourRequest(question)) return false;
+		const role = tourIntentFor(question, this.authStore.actingRole());
+		const tour = role ? ROLE_TOURS[role] : undefined;
+		if (!role || !tour) return false;
+		const say = (reply: string) => this.messages.update((list) => [...list, { role: 'assistant' as const, text: reply, createdAt: Date.now() }].slice(-100));
+		this.messages.update((list) => [...list, { role: 'user' as const, text: question, createdAt: Date.now() }].slice(-100));
+		const run = () => {
+			if (role === UserRole.CLIENT && this.injector.get(ClientOnboardingStateService).closed()) { say('لوحتك لسه مقفولة لحد ما الإدارة تعتمد حسابك. أول ما تتفتح هعرّفك عليها بجولة كاملة.'); return; }
+			say('تمام، هعرّفك على لوحتك دلوقتي خطوة بخطوة.');
+			this.injector.get(TourService).start(tour);
+		};
+		if (role === UserRole.CLIENT) this.injector.get(ClientOnboardingStateService).load().subscribe({ next: run, error: run }); else run();
 		return true;
 	}
 
