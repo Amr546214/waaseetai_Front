@@ -43,29 +43,22 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
     const summary = () => el().querySelector('[data-testid="form-summary"]')?.textContent || '';
     const errors = () => Array.from(el().querySelectorAll('[data-testid="field-error"]')).map(e => e.textContent || '');
     const banner = () => el().querySelector('[data-testid="add-account-error"]')?.textContent || '';
-    const fillProvider = () => { c.ctl.specMain.setValue('تصميم جرافيك وبصري'); c.ctl.specExp.setValue('3-5 سنوات'); c.ctl.portfolioBio.setValue('نبذة مهنية'); };
+    const fillProvider = () => { c.ctl.chType.setValue('YouTube'); }; // a flow with a panel of its own (the provider flow has none: its wizard collects the rest)
     const toStep = (type: string, idx: number) => { c.selectType(type); c.stepIdx.set(idx); render(); };
 
-    it('Next on an empty specialties step: stays, summary names the field, inline error, focus on it', () => {
-      document.body.appendChild(el());
-      c.selectType('provider-ind'); render();
-      c.nextStep(); render();
-      expect(c.stepIdx()).toBe(1);
-      expect(summary()).toContain('التخصص الرئيسي');
-      expect(errors().some(t => t.length > 0)).toBe(true);
-      expect(document.activeElement?.tagName).toBe('SELECT');
-      el().remove();
+    it('adding a provider account sends it straight away and moves into the provider panel (its wizard does the rest)', () => {
+      const switchActiveRole = TestBed.inject(AccountService).switchActiveRole as ReturnType<typeof vi.fn>;
+      switchActiveRole.mockReturnValue(of({ success: true }));
+      c.selectType('provider-ind'); c.stepIdx.set(1);
+      c.submit();
+      expect(add).toHaveBeenCalledTimes(1);
+      expect(add.mock.calls[0][0]).toBe('PROVIDER');
+      expect(switchActiveRole).toHaveBeenCalledWith('PROVIDER');
     });
 
-    it('the bio step blocks an empty / whitespace-only bio and a bio over 1000 characters', () => {
-      c.selectType('provider-ind'); c.ctl.specMain.setValue('x'); c.ctl.specExp.setValue('3-5 سنوات'); c.nextStep(); render();
-      expect(c.stepIdx()).toBe(2);
-      c.ctl.portfolioBio.setValue('   '); c.nextStep(); render();
-      expect(c.stepIdx()).toBe(2);
-      expect(summary()).toContain('النبذة المهنية');
-      c.ctl.portfolioBio.setValue('x'.repeat(1001)); c.nextStep(); render();
-      expect(c.stepIdx()).toBe(2);
-      expect(errors().some(t => t.includes('1000'))).toBe(true);
+    it('the provider flow is two steps (type, send): the specialties, skills and models are collected by the provider wizard, not here', () => {
+      c.selectType('provider-ind'); render();
+      expect(c.flow().map(f => f.id)).toEqual(['panel-1', 'panel-review']);
     });
 
     it('affiliate: the main channel type is required before moving on', () => {
@@ -84,43 +77,9 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
       expect(add).toHaveBeenCalledWith('AFFILIATE', expect.objectContaining({ chType: 'YouTube' }));
     });
 
-    it('submit from the review step with an incomplete earlier step jumps back to it with the full summary; nothing is sent', () => {
-      vi.useFakeTimers();
-      c.selectType('provider-ind'); c.stepIdx.set(3); render();
-      c.submit(); vi.advanceTimersByTime(100); render();
-      expect(add).not.toHaveBeenCalled();
-      expect(c.stepIdx()).toBe(1);
-      expect(summary()).toContain('التخصص الرئيسي');
-      vi.useRealTimers();
-    });
-
-    it('a complete wizard sends the same payload shape as before and reaches the success state', () => {
-      c.selectType('provider-ind'); fillProvider(); c.stepIdx.set(3);
-      c.submit();
-      expect(add).toHaveBeenCalledTimes(1);
-      const [role, meta] = add.mock.calls[0];
-      expect(role).toBe('PROVIDER');
-      expect(Object.keys(meta).sort()).toEqual(['chReach', 'chType', 'coCrn', 'coName', 'coRole', 'portfolioBio', 'skills', 'specExp', 'specMain']);
-      expect(meta.specMain).toBe('تصميم جرافيك وبصري');
-      expect(c.isSuccess()).toBe(true);
-      expect(c.errorMessage()).toBeNull();
-    });
-
-    it('server 400 with errors[] puts the message under the field and returns to that step', () => {
-      vi.useFakeTimers();
-      add.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { success: false, message: 'x', errors: [{ field: 'profileMetadata.portfolioBio', path: 'profileMetadata.portfolioBio', message: 'النبذة المهنية يجب ألا تتجاوز 1000 حرف', code: 'too_big' }] } })));
-      c.selectType('provider-ind'); fillProvider(); c.stepIdx.set(3);
-      c.submit(); vi.advanceTimersByTime(100); render();
-      expect(c.stepIdx()).toBe(2);
-      expect(c.ctl.portfolioBio.errors?.['server']).toContain('1000');
-      expect(errors().some(t => t.includes('1000'))).toBe(true);
-      expect(c.isSubmitting()).toBe(false);
-      vi.useRealTimers();
-    });
-
     it('409 "already owned" shows the Arabic server message, refreshes the owned roles, no English', () => {
       add.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { success: false, message: 'أنت تمتلك هذا الحساب بالفعل' } })));
-      c.selectType('provider-ind'); fillProvider(); c.stepIdx.set(3);
+      c.selectType('affiliate'); fillProvider(); c.stepIdx.set(2);
       getTypes.mockClear();
       c.submit(); render();
       expect(c.errorMessage()).toBe('أنت تمتلك هذا الحساب بالفعل');
@@ -132,7 +91,7 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
     it('server 500 shows the fixed Arabic message, never "Internal Server Error"; details only in the console', () => {
       const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
       add.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500, error: { message: 'Internal Server Error' } })));
-      c.selectType('provider-ind'); fillProvider(); c.stepIdx.set(3);
+      c.selectType('affiliate'); fillProvider(); c.stepIdx.set(2);
       c.submit(); render();
       expect(c.errorMessage()).toBe(FIXED);
       expect(banner()).toContain(FIXED);
@@ -144,31 +103,21 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
 
     it('a 500 whose Arabic message comes from the backend and a network failure are both Arabic', () => {
       const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      c.selectType('provider-ind'); fillProvider(); c.stepIdx.set(3);
+      c.selectType('affiliate'); fillProvider(); c.stepIdx.set(2);
       add.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 0, error: null })));
       c.submit();
       expect(c.errorMessage()).not.toMatch(/[A-Za-z]/);
       spy.mockRestore();
     });
 
-    it('fields the backend does not store are disabled with a visible note (no fake input)', () => {
-      c.selectType('provider-ind'); c.stepIdx.set(1); render();
-      const disabledSelect = el().querySelector('select[disabled]');
-      expect(disabledSelect).toBeTruthy();
-      c.ctl.specMain.setValue('x'); c.ctl.specExp.setValue('3-5 سنوات'); c.nextStep(); render();
-      expect(el().querySelector('input[type="url"]')?.hasAttribute('disabled')).toBe(true);
-      expect(el().querySelector('input[type="file"]')?.hasAttribute('disabled')).toBe(true);
-      expect(el().querySelectorAll('[data-testid="field-unsupported"]').length).toBeGreaterThanOrEqual(2);
-    });
-
     it('the submit button is never disabled by validity (only while submitting)', () => {
-      c.selectType('provider-ind'); c.stepIdx.set(3); render();
+      c.selectType('affiliate'); c.stepIdx.set(2); render();
       const btn = Array.from(el().querySelectorAll('button')).find(b => b.textContent?.includes('إرسال الطلب')) as HTMLButtonElement;
       expect(btn.disabled).toBe(false);
     });
 
     it('going back clears the previous summary', () => {
-      c.selectType('provider-ind'); c.nextStep();
+      c.selectType('affiliate'); c.nextStep();
       expect(c.missing().length).toBeGreaterThan(0);
       c.prevStep();
       expect(c.missing()).toEqual([]);
