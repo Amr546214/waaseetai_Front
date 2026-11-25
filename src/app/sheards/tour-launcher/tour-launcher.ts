@@ -7,6 +7,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TourService } from '../../core/tour/tour.service';
 import { PageTourEntry, pageTourFor, pageToursFor } from '../../core/tour/tours/page-tours';
 import { AuthStore } from '../../core/store/auth.store';
+import { UserRole } from '../../core/models/auth.model';
+import { ClientOnboardingStateService } from '../../core/services/client-onboarding-state.service';
 import { ROLE_TOURS, ROLE_TOUR_AREAS } from '../../core/tour/tours/role-tours';
 
 const SUGGESTED_KEY = 'ws.tour.suggested.v1';
@@ -59,6 +61,7 @@ export class TourLauncherComponent {
 	private readonly exam = inject(AssistantExamState);
 	private readonly doc = inject(DOCUMENT);
 	private readonly auth = inject(AuthStore);
+	private readonly onboarding = inject(ClientOnboardingStateService);
 	private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 	private readonly path = signal((inject(Router).url || '/').split(/[?#]/)[0]);
 	/** bumped by a light timer so the "form fields are on screen" check follows the page (the registration steps swap their content) */
@@ -71,6 +74,8 @@ export class TourLauncherComponent {
 		const tour = role ? ROLE_TOURS[role] : undefined;
 		const area = role ? ROLE_TOUR_AREAS[role] : undefined;
 		if (!tour || !area) return null;
+		// the client dashboard is closed while the identity review is pending: no «جولة في لوحتك» and no first-time suggestion until it opens
+		if (role === UserRole.CLIENT && this.onboarding.closed()) return null;
 		const path = this.path();
 		return path === area || path.startsWith(area + '/') ? { path: area, tour, label: 'جولة في لوحتك' } : null;
 	}
