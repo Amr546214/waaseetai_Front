@@ -1,5 +1,5 @@
 import { UserRole } from '../models/auth.model';
-import { isPageTourRequest, mayBeTourRequest, tourIntentFor } from '../tour/tour-intent';
+import { isPageTourRequest, namedTourPage, mayBeTourRequest, tourIntentFor } from '../tour/tour-intent';
 import { pageToursFor } from '../tour/tours/page-tours';
 import { ROLE_TOURS } from '../tour/tours/role-tours';
 import { TourService } from '../tour/tour.service';
@@ -590,7 +590,7 @@ export class AssistantStore {
 	/** a request to be shown the dashboard runs the role's guided tour; a client whose dashboard is still closed (identity under review) is told so instead */
 	private startTourFromQuestion(question: string): boolean {
 		if (isPageTourRequest(question)) {
-			const entry = pageToursFor(this.injector.get(Router).url).find(e => !e.presence || !!document.querySelector(e.presence));
+			const entry = pageToursFor(namedTourPage(question) ?? this.injector.get(Router).url).find(e => !e.presence || !!document.querySelector(e.presence));
 			if (!entry) return false;
 			this.messages.update((list) => [...list, { role: 'user' as const, text: question, createdAt: Date.now() }, { role: 'assistant' as const, text: 'تمام، هعرّفك على الصفحة دي دلوقتي.', createdAt: Date.now() }].slice(-100));
 			this.injector.get(TourService).start(entry.tour);

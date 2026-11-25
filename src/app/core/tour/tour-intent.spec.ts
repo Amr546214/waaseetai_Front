@@ -18,12 +18,15 @@ describe('tourIntentFor: «اشرحلي لوحتي» starts the dashboard tour',
 	});
 });
 
-import { isPageTourRequest } from './tour-intent';
+import { isPageTourRequest, namedTourPage } from './tour-intent';
 describe('isPageTourRequest', () => {
 	it('matches «اشرحلي الصفحة دي» but not a dashboard request or plain talk', () => {
 		expect(isPageTourRequest('اشرحلي الصفحة دي')).toBe(true);
 		expect(isPageTourRequest('جولة في الصفحة')).toBe(true);
 		expect(isPageTourRequest('اشرحلي لوحة طالب الخدمة')).toBe(false);
 		expect(isPageTourRequest('ازاي ادفع')).toBe(false);
+		expect(isPageTourRequest('اشرح المدونة')).toBe(true);
+		expect(namedTourPage('اشرحلي صفحة من نحن')).toBe('/about');
+		expect(namedTourPage('وريني اتصل بنا')).toBe('/contact');
 	});
 });
