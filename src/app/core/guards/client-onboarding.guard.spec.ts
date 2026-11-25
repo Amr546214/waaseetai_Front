@@ -6,7 +6,7 @@ import { Observable, isObservable, firstValueFrom } from 'rxjs';
 import { AuthStore } from '../store/auth.store';
 import { UiNotificationService } from '../services/ui-notification.service';
 import { ClientOnboardingStateService } from '../services/client-onboarding-state.service';
-import { clientOnboardingGuard, CLIENT_ONBOARDING_PAGE } from './client-onboarding.guard';
+import { clientOnboardingGuard, CLIENT_ONBOARDING_PAGE, CLIENT_REVIEW_PAGE } from './client-onboarding.guard';
 
 // An individual client enters the dashboard only after «استكمال البيانات» is finished AND the identity matched; a failed read never locks anyone out.
 describe('clientOnboardingGuard + ClientOnboardingStateService', () => {
@@ -32,17 +32,26 @@ describe('clientOnboardingGuard + ClientOnboardingStateService', () => {
 		setup(); const r = await resolve('/client-overview/my-requests', { percent: 40, canAdvance: false });
 		expect(r instanceof UrlTree).toBe(true); expect(TestBed.inject(Router).serializeUrl(r as UrlTree)).toBe(CLIENT_ONBOARDING_PAGE); expect(info).toHaveBeenCalled();
 	});
-	it('wizard finished but the identity did not match yet: still closed', async () => {
+	it('wizard finished, identity under review: every page goes to the single waiting page', async () => {
 		setup(); const r = await resolve('/client-overview/profile/edit', { percent: 100, canAdvance: false });
-		expect(r instanceof UrlTree).toBe(true);
+		expect(r instanceof UrlTree).toBe(true); expect(TestBed.inject(Router).serializeUrl(r as UrlTree)).toBe(CLIENT_REVIEW_PAGE);
+	});
+	it('under review: the waiting page and the support ticket pages open, help home / profile-setup do not', async () => {
+		setup(); expect(await resolve('/client-overview/review-wait', { percent: 100, canAdvance: false })).toBe(true);
+		TestBed.resetTestingModule(); setup(); expect(await resolve('/client-overview/help/tickets/new', { percent: 100, canAdvance: false })).toBe(true);
+		TestBed.resetTestingModule(); setup(); expect((await resolve('/client-overview/profile-setup', { percent: 100, canAdvance: false })) instanceof UrlTree).toBe(true);
+	});
+	it('the waiting page is not for someone who is already in (goes to the dashboard) or still in the wizard (goes to the path)', async () => {
+		setup(); const a = await resolve('/client-overview/review-wait', { percent: 100, canAdvance: true });
+		expect(TestBed.inject(Router).serializeUrl(a as UrlTree)).toBe('/client-overview');
+		TestBed.resetTestingModule(); setup(); const b = await resolve('/client-overview/review-wait', { percent: 40, canAdvance: false });
+		expect(TestBed.inject(Router).serializeUrl(b as UrlTree)).toBe(CLIENT_ONBOARDING_PAGE);
 	});
 	it('wizard finished and the identity passed: open', async () => {
 		setup(); expect(await resolve('/client-overview/my-requests', { percent: 100, canAdvance: true })).toBe(true);
 	});
-	it('the path itself, help and the assistant are always reachable (no request)', () => {
-		setup();
-		for (const u of ['/client-overview/profile-setup', '/client-overview/profile-setup/x', '/client-overview/help', '/client-overview/bebo']) expect(run(u)).toBe(true);
-		http.expectNone(() => true);
+	it('wizard unfinished: the path itself, help and the assistant stay reachable', async () => {
+		for (const u of ['/client-overview/profile-setup', '/client-overview/help', '/client-overview/bebo']) { TestBed.resetTestingModule(); setup(); expect(await resolve(u, { percent: 40, canAdvance: false })).toBe(true); }
 	});
 	it('a failed read opens (never locks anyone out)', async () => {
 		setup(); expect(await resolve('/client-overview/my-requests', { fail: true })).toBe(true);

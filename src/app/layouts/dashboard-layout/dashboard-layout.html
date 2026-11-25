@@ -1,5 +1,5 @@
 <app-page-loader></app-page-loader>
-<div class="ws-dashboard-root" [class.admin-shell]="isAdminShell()" [class.exam-mode]="examMode()" dir="rtl">
+<div class="ws-dashboard-root" [class.admin-shell]="isAdminShell()" [class.exam-mode]="focusMode()" dir="rtl">
 	<!-- Icons sprite (Hidden) -->
 	<svg style="display:none" aria-hidden="true">
 		<defs>
@@ -194,7 +194,7 @@
 	<div class="particles" id="particles-container" aria-hidden="true"></div>
 
 	<!-- EXAM MODE (a specialty test is on): no topbar, sidebar, footer, chat toast or call window: the test is a screen of its own -->
-	@if (!examMode()) {
+	@if (!focusMode()) {
 	<!-- Sidebar overlay -->
 	<div class="sb-ov" [class.show]="isSidebarOpen()" id="sb-ov" (click)="closeSidebar()"></div>
 
@@ -209,7 +209,7 @@
 
 	<!-- MAIN CONTENT -->
 	<main class="main" [class.chat-main]="isChatRoute()">
-        @if (!examMode()) { <app-platform-banner class="maintenance-banner" /> }
+        @if (!focusMode()) { <app-platform-banner class="maintenance-banner" /> }
 		<div class="main-inner" [class.chat-inner]="isChatRoute()" [hidden]="!!roleRedirectLabel()">
 			<router-outlet></router-outlet>
 		</div>
@@ -220,7 +220,7 @@
 		}
 
 		<!-- FOOTER -->
-		@if (!isChatRoute() && !examMode()) {
+		@if (!isChatRoute() && !focusMode()) {
 			<footer class="inner-foot" role="contentinfo">
 				<span>&#169; {{ currentYear }} {{ '' | brandName }} &middot; v{{ appVersion }}</span>
 				<div class="inner-foot-links">
@@ -232,7 +232,7 @@
 	</main>
 
 	<!-- Real-Time Chat Message Toast Notification -->
-	@if (chatToast().visible && !examMode()) {
+	@if (chatToast().visible && !focusMode()) {
 	<div class="fixed bottom-6 left-6 z-[99999] w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl bg-[#091230]/95 backdrop-blur-xl border border-[#2BD4C7]/40 shadow-[0_10px_35px_rgba(43,212,199,0.3)] p-4 text-white transition-all animate-in fade-in slide-in-from-bottom-5 duration-300"
 		dir="rtl">
 		<div class="flex items-start gap-3.5">
@@ -273,7 +273,7 @@
 	}
 
 	<!-- WebRTC Video Conference Modal -->
-	@if (!examMode()) { <app-video-call-modal></app-video-call-modal> }
+	@if (!focusMode()) { <app-video-call-modal></app-video-call-modal> }
 
 	<!-- The floating assistant (Bebo) is mounted once at the app root (app.ts), not here. -->
 </div>

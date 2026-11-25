@@ -242,6 +242,7 @@ export class ProfileSetupDashboard implements OnInit {
 						// every step is saved: the dashboard opens only once the identity also matched (or was approved). Until then the person stays on the identity step
 						// (sending them to the edit page would bounce them straight back here).
 						this.onboarding.load(true).subscribe(() => {
+							if (this.onboarding.reviewing()) { this.router.navigateByUrl('/client-overview/review-wait'); return; }
 							if (this.onboarding.closed()) { this.currentStep.set(2); this.gate.load().subscribe({ error: () => undefined }); return; }
 							this.notify.info(SETUP_REDIRECT_MESSAGE[start.reason]);
 							this.router.navigateByUrl(CLIENT_EDIT_PAGE);
@@ -686,7 +687,7 @@ export class ProfileSetupDashboard implements OnInit {
 				this.refreshStoredCompletion();
 
 				setTimeout(() => {
-					this.router.navigate(['/client-overview/profile']);
+					this.router.navigateByUrl(this.onboarding.reviewing() ? '/client-overview/review-wait' : '/client-overview/profile');
 				}, 2000);
 			},
 			error: (err: any) => {

@@ -7,6 +7,9 @@ import { UiNotificationService } from '../services/ui-notification.service';
 /** the pages of /client-overview an individual client may use before the registration path is finished and the identity passed the automatic match */
 export const CLIENT_ONBOARDING_ALLOWED = ['profile-setup', 'help', 'bebo'] as const;
 export const CLIENT_ONBOARDING_PAGE = '/client-overview/profile-setup';
+/** the path is finished, the identity is still under review: the only page + the support contact pages */
+export const CLIENT_REVIEW_PAGE = '/client-overview/review-wait';
+export const CLIENT_REVIEW_ALLOWED = ['review-wait', 'help/tickets'] as const;
 export const CLIENT_ONBOARDING_MESSAGE = 'أكمل مسار «استكمال البيانات» وانتظر مطابقة الهوية أولًا؛ تفتح باقي صفحات لوحتك بعد ذلك.';
 
 /**
@@ -18,9 +21,14 @@ export const clientOnboardingGuard: CanActivateChildFn = (_route, state) => {
 	const router = inject(Router), notify = inject(UiNotificationService);
 	if (!onboarding.applies()) return true;
 	const target = state.url.split('?')[0].replace(/^\/client-overview\/?/, '');
-	if (CLIENT_ONBOARDING_ALLOWED.some(p => target === p || target.startsWith(p + '/'))) return true;
+	const within = (list: readonly string[]) => list.some(p => target === p || target.startsWith(p + '/'));
+	const isWait = target === 'review-wait';
 	return onboarding.load().pipe(map(() => {
+		// reading failed / unknown: never lock anyone out (the waiting page itself is then pointless)
+		if (onboarding.reviewing()) return within(CLIENT_REVIEW_ALLOWED) ? true : router.parseUrl(CLIENT_REVIEW_PAGE);
+		if (isWait) return router.parseUrl(onboarding.open() === false ? CLIENT_ONBOARDING_PAGE : '/client-overview');
 		if (onboarding.open() !== false) return true;
+		if (within(CLIENT_ONBOARDING_ALLOWED)) return true;
 		notify.info(CLIENT_ONBOARDING_MESSAGE);
 		return router.parseUrl(CLIENT_ONBOARDING_PAGE);
 	}));
