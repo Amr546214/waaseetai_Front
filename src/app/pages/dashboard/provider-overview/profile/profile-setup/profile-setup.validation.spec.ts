@@ -133,16 +133,15 @@ describe('provider profile-setup: shared validation', () => {
   });
 
   // The back side is optional for every kind of document (the selfie stays optional too).
-  it('the back-ID is optional for every document kind, passport included; the selfie slot stays optional', () => {
+  it('the back-ID is optional for every document kind, passport included; there is no selfie slot', () => {
     component.currentStep.set(4); render();
     const text = el().textContent || '';
     const back = Array.from(el().querySelectorAll('.doc-name')).find(n => n.textContent?.includes('الظهر'))!;
-    const selfie = Array.from(el().querySelectorAll('.doc-name')).find(n => n.textContent?.includes('Selfie'))!;
+    expect(Array.from(el().querySelectorAll('.doc-name')).find(n => n.textContent?.includes('Selfie'))).toBeUndefined();
     expect(back.textContent).toContain('اختياري');
     expect(back.textContent).not.toContain('إلزامي');
     component.setupForm.get('docs.idDocumentType')!.setValue('PASSPORT'); render();
     expect(back.textContent).toContain('اختياري');
-    expect(selfie.textContent).toContain('اختياري');
     expect(text).toContain('إلزامي'); // the front ID
   });
 
