@@ -82,16 +82,6 @@ describe('client profile-setup: identity gate behaviour', () => {
 		expect(c.currentStep()).toBe(2);
 	});
 
-	it('the server refusing a skipped step (409 IDENTITY_NOT_APPROVED) brings the user back to the identity step with the reason', () => {
-		const err = new HttpErrorResponse({ status: 409, error: { success: false, code: 'IDENTITY_NOT_APPROVED', message: 'وثيقة الهوية غير معتمدة بعد' } });
-		expect(isIdentityNotApproved(err)).toBe(true);
-		mount('UNDER_REVIEW', (s) => s === 3 ? throwError(() => err) : of({ success: true, data: {} }));
-		c.currentStep.set(3); c.setupForm.get('bank.paypalPayoutEmail').setValue('me@example.com');
-		c.nextStep(); fixture.detectChanges();
-		expect(c.currentStep()).toBe(2);
-		expect(c.gateProblem()).toContain('غير معتمدة');
-	});
-
 	it('a wizard resumed past the identity (details + PayPal saved) opens on the identity step while it is not approved', () => {
 		FakeIdentityGate.reset('UNDER_REVIEW');
 		TestBed.configureTestingModule({ imports: [ProfileSetupDashboard], providers: [

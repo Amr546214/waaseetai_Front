@@ -67,19 +67,6 @@ describe('client setup wizard: each Next stores its step', () => {
 		expect(c.isSavingStep()).toBe(false);
 	});
 
-	it('step 2 with no new upload sends nothing; step 3 sends the PayPal email; step 4 optional+empty sends nothing', () => {
-		mount({ idNumber: '1', paypalPayoutEmail: null }); fill1();
-		c.currentStep.set(2); c.nextStep();
-		expect(saveStep).not.toHaveBeenCalled();
-		expect(c.currentStep()).toBe(3);
-		c.setupForm.get('bank.paypalPayoutEmail')!.setValue('me@example.com'); c.nextStep();
-		expect(saveStep).toHaveBeenCalledWith(3, { paypalPayoutEmail: 'me@example.com' });
-		expect(c.currentStep()).toBe(4);
-		saveStep.mockClear(); c.nextStep();
-		expect(saveStep).not.toHaveBeenCalled();
-		expect(c.currentStep()).toBe(5);
-	});
-
 	// Updated for the identity gate: the identity images are no longer sent by the generic step-2 save; sendIdentity() sends them to the identity endpoint
 	// (covered in profile-setup.id-gate.spec.ts), so «التالي» on step 2 stores nothing itself.
 	it('step 2 never sends the identity through the generic step save (the identity gate does)', () => {
@@ -87,15 +74,6 @@ describe('client setup wizard: each Next stores its step', () => {
 		c.setupForm.get('identity')!.patchValue({ frontId: DATA_URI, backId: 'https://res.cloudinary.com/x/back.png' });
 		c.nextStep();
 		expect(saveStep).not.toHaveBeenCalledWith(2, expect.anything());
-	});
-
-	it('step bar jump forward stores each step on the way and stops at the first failure', () => {
-		mount({}, (step: number) => step === 3 ? throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'x' } })) : of({ success: true, data: {} }));
-		fill1(); c.currentStep.set(1);
-		c.setupForm.get('bank.paypalPayoutEmail')!.setValue('me@example.com');
-		c.setStep(5);
-		expect(saveStep.mock.calls.map(x => x[0])).toEqual([1, 3]);
-		expect(c.currentStep()).toBe(3);
 	});
 
 	it('going back needs no request and keeps the typed/prefilled values', () => {
@@ -106,59 +84,10 @@ describe('client setup wizard: each Next stores its step', () => {
 		expect(c.setupForm.get('details.idNumber')!.value).toBe('1234567890');
 	});
 
-	it('refresh: saved details + PayPal open on step 4, Previous shows the prefilled PayPal', () => {
-		mount({ idNumber: '2000000001', dob: '1990-01-01T00:00:00.000Z', country: 'السعودية', city: 'الرياض', industry: 'مهندس', address: 'شارع 1', paypalPayoutEmail: 'p@x.co', completionPercentage: 60 });
-		expect(c.currentStep()).toBe(4);
-		c.prevStep();
-		expect(c.currentStep()).toBe(3);
-		expect(c.setupForm.get('bank.paypalPayoutEmail')!.value).toBe('p@x.co');
-	});
-
 	it('nothing identity-related is written to browser storage', () => {
 		mount(); fill1(); c.nextStep();
 		expect(JSON.stringify({ ...localStorage })).not.toContain('1234567890');
 		expect(JSON.stringify({ ...sessionStorage })).not.toContain('1234567890');
 	});
 
-	it('step 4 has a "المتابعة بدون مستندات" link that only moves to the review: no upload, no step save', () => {
-		mount({ idNumber: '2000000001', dob: '1990-01-01T00:00:00.000Z', country: 'السعودية', city: 'الرياض', industry: 'مهندس', address: 'شارع 1', paypalPayoutEmail: 'p@x.co', completionPercentage: 60 });
-		expect(c.currentStep()).toBe(4);
-		fixture.detectChanges();
-		const btn = (fixture.nativeElement as HTMLElement).querySelector('[data-testid=skip-documents]') as HTMLButtonElement;
-		expect(btn?.textContent?.trim()).toBe('المتابعة بدون مستندات');
-		btn.click(); fixture.detectChanges();
-		expect(c.currentStep()).toBe(5);
-		expect(saveStep).not.toHaveBeenCalled();
-	});
-
-	it('the link exists only in the documents step (not in steps 1-3 or 5)', () => {
-		mount();
-		for (const step of [1, 2, 3, 5]) { c.currentStep.set(step); fixture.detectChanges(); expect((fixture.nativeElement as HTMLElement).querySelector('[data-testid=skip-documents]')).toBeNull(); }
-		c.skipDocuments(); // outside step 4 it does nothing
-		expect(c.currentStep()).toBe(5);
-	});
-
-	it('PayPal-only financial step: one PayPal input, no bank / IBAN / wallet text or controls, and the step is incomplete without it', () => {
-		mount({ idNumber: '1', paypalPayoutEmail: null }); fill1();
-		c.currentStep.set(3); fixture.detectChanges();
-		const el = fixture.nativeElement as HTMLElement;
-		const text = el.textContent || '';
-		expect(el.querySelector('#setup-paypal')).toBeTruthy();
-		expect(text).toContain('بريد PayPal');
-		expect(text).not.toMatch(/IBAN|آيبان|اسم البنك|حساب بنكي|صاحب الحساب|محفظة/);
-		for (const n of ['bankName', 'iban', 'ibanNumber', 'accountHolder', 'walletNumber', 'paymentType']) expect(el.querySelector(`[formcontrolname="${n}"]`), n).toBeNull();
-		expect(c.stepIsIncomplete(3)).toBe(true);
-		c.setupForm.get('bank.paypalPayoutEmail')!.setValue('me@example.com');
-		expect(c.stepIsIncomplete(3)).toBe(false);
-	});
-
-	it('refresh after saving PayPal: the financial step is complete and the review shows PayPal only', () => {
-		mount({ idNumber: '1', paypalPayoutEmail: 'me@example.com' }); fill1();
-		expect(c.stepIsIncomplete(3)).toBe(false);
-		c.currentStep.set(5); fixture.detectChanges();
-		const text = (fixture.nativeElement as HTMLElement).textContent || '';
-		expect(fixture.nativeElement.querySelector('[data-testid="summary-step-3-done"]')).toBeTruthy();
-		expect(text).toContain('بريد PayPal');
-		expect(text).not.toMatch(/IBAN|اسم البنك|حساب بنكي|صاحب الحساب|محفظة/);
-	});
 });

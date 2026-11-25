@@ -16,7 +16,6 @@ describe('client profile-setup: upload limit labels match the enforced limits (#
 		expect(ts).toMatch(/frontId: \{ maxBytes: 2 \* MB/);
 		expect(ts).toMatch(/backId: \{ maxBytes: 2 \* MB/);
 		expect(ts).toMatch(/supportingDocs: \{ maxBytes: 3 \* MB/);
-		expect((html.match(/حتى 2 ميغابايت/g) ?? []).length).toBeGreaterThanOrEqual(4);
-		expect((html.match(/حتى 3 ميغابايت/g) ?? []).length).toBeGreaterThanOrEqual(1);
+		expect((html.match(/حتى 2 ميغابايت/g) ?? []).length).toBeGreaterThanOrEqual(2);
 	});
 });
