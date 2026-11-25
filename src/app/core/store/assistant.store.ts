@@ -592,7 +592,7 @@ export class AssistantStore {
 		if (isPageTourRequest(question)) {
 			const entry = pageToursFor(namedTourPage(question) ?? this.injector.get(Router).url).find(e => !e.presence || !!document.querySelector(e.presence));
 			if (!entry) return false;
-			this.messages.update((list) => [...list, { role: 'user' as const, text: question, createdAt: Date.now() }, { role: 'assistant' as const, text: 'تمام، هعرّفك على الصفحة دي دلوقتي.', createdAt: Date.now() }].slice(-100));
+			this.messages.update((list) => [...list, { role: 'user' as const, text: question, createdAt: Date.now() }, { role: 'assistant' as const, text: `تمام، هبدأ معاك ${entry.tour.title} دلوقتي.`, createdAt: Date.now() }].slice(-100));
 			this.injector.get(TourService).start(entry.tour);
 			return true;
 		}
