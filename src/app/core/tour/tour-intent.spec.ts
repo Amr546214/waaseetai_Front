@@ -26,6 +26,9 @@ describe('isPageTourRequest', () => {
 		expect(isPageTourRequest('اشرحلي لوحة طالب الخدمة')).toBe(false);
 		expect(isPageTourRequest('ازاي ادفع')).toBe(false);
 		expect(isPageTourRequest('اشرح المدونة')).toBe(true);
+		expect(namedTourPage('عرفني ع صفحة الخدمات')).toBe('/marketplace');
+		expect(isPageTourRequest('عرفني على صفحة الاسعار')).toBe(false);
+		expect(isPageTourRequest('عرفني على الصفحة دي')).toBe(true);
 		expect(namedTourPage('اشرحلي صفحة من نحن')).toBe('/about');
 		expect(namedTourPage('وريني اتصل بنا')).toBe('/contact');
 	});
