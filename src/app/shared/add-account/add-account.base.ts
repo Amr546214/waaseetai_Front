@@ -404,8 +404,8 @@ export abstract class AddAccountBase implements OnInit {
         }
         this.notify.success(`تم إضافة حساب ${this.getRoleLabel(targetRole)}. أكمل بياناتك لتفعيله.`, { title: 'تمت إضافة الحساب' });
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        // a provider account starts exactly like a new registration: straight into its own panel, which stays closed until the setup is finished and approved
-        if (targetRole === UserRole.PROVIDER) this.switchToRole(targetRole);
+        // a provider or client account starts exactly like a new registration: straight into its own panel, which stays closed until the setup is finished and approved
+        if (targetRole === UserRole.PROVIDER || targetRole === UserRole.CLIENT) this.switchToRole(targetRole);
       },
       error: (err) => {
         this.isSubmitting.set(false);
