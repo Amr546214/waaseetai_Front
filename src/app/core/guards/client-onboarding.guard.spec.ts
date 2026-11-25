@@ -22,7 +22,7 @@ describe('clientOnboardingGuard + ClientOnboardingStateService', () => {
 		const p = firstValueFrom(r as Observable<unknown>);
 		const s = http.expectOne(x => x.url.endsWith('/client/profile/setup')), g = http.expectOne(x => x.url.endsWith('/client/profile/setup/identity'));
 		if (o.fail) { s.flush('x', { status: 500, statusText: 'err' }); void g; }
-		else { s.flush({ data: { completionPercentage: o.percent ?? 40, kycStatus: o.kyc ?? 'PENDING' } }); g.flush({ data: { canAdvance: o.canAdvance ?? false } }); }
+		else { s.flush({ data: { completionPercentage: o.percent ?? 40, kycStatus: o.kyc ?? (o.percent === 100 || o.percent === undefined ? 'PENDING' : 'UNVERIFIED') } }); g.flush({ data: { canAdvance: o.canAdvance ?? false } }); }
 		return p;
 	};
 	beforeEach(() => info.mockClear());
@@ -40,6 +40,10 @@ describe('clientOnboardingGuard + ClientOnboardingStateService', () => {
 		setup(); expect(await resolve('/client-overview/review-wait', { percent: 100, canAdvance: false })).toBe(true);
 		TestBed.resetTestingModule(); setup(); expect(await resolve('/client-overview/help/tickets/new', { percent: 100, canAdvance: false })).toBe(true);
 		TestBed.resetTestingModule(); setup(); expect((await resolve('/client-overview/profile-setup', { percent: 100, canAdvance: false })) instanceof UrlTree).toBe(true);
+	});
+	it('documents sent for review (PENDING) = finished, even when the saved flags still point at a step', async () => {
+		setup(); const r = await resolve('/client-overview/my-requests', { percent: 60, canAdvance: false, kyc: 'PENDING' });
+		expect(TestBed.inject(Router).serializeUrl(r as UrlTree)).toBe(CLIENT_REVIEW_PAGE);
 	});
 	it('the waiting page is not for someone who is already in (goes to the dashboard) or still in the wizard (goes to the path)', async () => {
 		setup(); const a = await resolve('/client-overview/review-wait', { percent: 100, canAdvance: true });
@@ -68,7 +72,7 @@ describe('clientOnboardingGuard + ClientOnboardingStateService', () => {
 		http.expectOne(x => x.url.endsWith('/client/profile/setup/identity')).flush({ data: { canAdvance: true } });
 		expect(svc.badge()).toBe('APPROVED');
 		svc.load(true).subscribe();
-		http.expectOne(x => x.url.endsWith('/client/profile/setup')).flush({ data: { completionPercentage: 35, kycStatus: 'PENDING' } });
+		http.expectOne(x => x.url.endsWith('/client/profile/setup')).flush({ data: { completionPercentage: 35, kycStatus: 'UNVERIFIED' } });
 		http.expectOne(x => x.url.endsWith('/client/profile/setup/identity')).flush({ data: { canAdvance: false } });
 		expect(svc.badge()).toBeNull();
 	});
