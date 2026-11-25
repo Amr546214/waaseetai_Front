@@ -60,6 +60,8 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	{ path: 'finance', pathMatch: 'full', redirectTo: 'finance/wallet' },
 	{ path: 'settings', pathMatch: 'full', redirectTo: 'settings/account' },
 	{ path: 'support', pathMatch: 'full', redirectTo: 'help' },
+	// an individual client whose identity is still under review sees only this page (+ the support contact pages)
+	{ path: 'review-wait', loadComponent: () => import('./review-wait/review-wait').then(m => m.ReviewWaitComponent), data: { title: 'قيد المراجعة' } },
 	//   help
 	{
 		path: 'help',
