@@ -41,7 +41,11 @@ export class ClientOnboardingStateService {
 		return !!u && u.accountType === AccountType.CLIENT_INDIVIDUAL && (u.activeRole ?? UserRole.CLIENT) === UserRole.CLIENT;
 	});
 	/** the wizard has nothing left to collect (every step saved and agreed) */
-	readonly wizardDone = computed(() => { const s = this.snapshot(); return s ? resolveClientSetup(s.setup).kind === 'redirect' : null; });
+	readonly wizardDone = computed(() => {
+		const s = this.snapshot(); if (!s) return null;
+		// the documents were SENT for the administration's review (kycStatus PENDING) = the person finished their part, even when the saved flags alone would still point at a step
+		return resolveClientSetup(s.setup).kind === 'redirect' || s.kycStatus === 'PENDING';
+	});
 	/** true = open, false = closed, null = not known yet (treated as open) */
 	readonly open = computed<boolean | null>(() => {
 		if (!this.applies()) return true;
