@@ -46,13 +46,17 @@ describe('clientOnboardingGuard + ClientOnboardingStateService', () => {
 		expect(TestBed.inject(Router).serializeUrl(r as UrlTree)).toBe(CLIENT_REVIEW_PAGE);
 	});
 	it('the waiting page is not for someone who is already in (goes to the dashboard) or still in the wizard (goes to the path)', async () => {
-		setup(); const a = await resolve('/client-overview/review-wait', { percent: 100, canAdvance: true });
+		setup(); const a = await resolve('/client-overview/review-wait', { percent: 100, canAdvance: true, kyc: 'VERIFIED' });
 		expect(TestBed.inject(Router).serializeUrl(a as UrlTree)).toBe('/client-overview');
 		TestBed.resetTestingModule(); setup(); const b = await resolve('/client-overview/review-wait', { percent: 40, canAdvance: false });
 		expect(TestBed.inject(Router).serializeUrl(b as UrlTree)).toBe(CLIENT_ONBOARDING_PAGE);
 	});
 	it('wizard finished and the identity passed: open', async () => {
-		setup(); expect(await resolve('/client-overview/my-requests', { percent: 100, canAdvance: true })).toBe(true);
+		setup(); expect(await resolve('/client-overview/my-requests', { percent: 100, canAdvance: true, kyc: 'VERIFIED' })).toBe(true);
+	});
+	it('the data matched automatically but the administration has not approved yet (PENDING): still the waiting page', async () => {
+		setup(); const r = await resolve('/client-overview/profile', { percent: 100, canAdvance: true, kyc: 'PENDING' });
+		expect(TestBed.inject(Router).serializeUrl(r as UrlTree)).toBe(CLIENT_REVIEW_PAGE);
 	});
 	it('wizard unfinished: the path itself, help and the assistant stay reachable', async () => {
 		for (const u of ['/client-overview/profile-setup', '/client-overview/help', '/client-overview/bebo']) { TestBed.resetTestingModule(); setup(); expect(await resolve(u, { percent: 40, canAdvance: false })).toBe(true); }
