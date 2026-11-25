@@ -1701,21 +1701,29 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private applyServerDocumentErrors(errors: unknown): boolean {
 		if (!Array.isArray(errors)) return false;
 		let step = 0;
+		const shown: InvalidField[] = [];
+		const norm = (v: string) => v.replace(/[^\p{L}\p{N}]/gu, '').toLowerCase();
 		for (const e of errors as Array<{ field?: unknown; path?: unknown; message?: unknown }>) {
-			const name = typeof (e?.field ?? e?.path) === 'string' ? String(e.field ?? e.path) : '';
+			const name = typeof (e?.field ?? e?.path) === 'string' ? String(e.field ?? e?.path) : '';
 			const message = typeof e?.message === 'string' ? e.message : '';
 			if (!name || !message) continue;
-			if (name === 'identity.frontId') { this.setFileError('frontId', message); step = step || 4; }
+			if (name === 'identity.frontId') { this.setFileError('frontId', message); step = step || 4; shown.push({ path: 'docs.frontId', label: 'صورة الهوية', message }); }
 			else if (name.startsWith('portfolio.') && name.length > 'portfolio.'.length) {
-				const spec = name.slice('portfolio.'.length);
-				const list = this.portfolioItems()[spec] || [];
+				let spec = name.slice('portfolio.'.length);
+				// the server may have cleaned the sub-specialty name: find the card the person actually sees
+				const cards = this.portfolioItems();
+				if (!cards[spec]) spec = Object.keys(cards).find(k => norm(k) === norm(spec)) ?? this.chosenSubSpecs().find(k => norm(k) === norm(spec)) ?? spec;
+				const list = cards[spec] || [];
 				const idx = Math.max(0, list.findIndex(i => !!i.review && !i.proofs.some(Boolean)));
 				this.setFileError(/وثيقة|إثبات|الإثبات/.test(message) ? pfProofKey(spec, idx) : pfSpecKey(spec), message);
 				step = step && step < 5 ? step : 5;
+				shown.push({ path: `portfolio.${spec}`, label: `نموذج العمل: ${spec}`, message });
 			}
 		}
 		if (!step) return false;
 		this.currentStep.set(step);
+		// never silent: the reason is also listed in the summary under the step
+		this.missing.set(shown);
 		this.focusSoon();
 		return true;
 	}
