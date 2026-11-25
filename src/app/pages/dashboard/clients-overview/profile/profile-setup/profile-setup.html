@@ -180,6 +180,7 @@
 							<h3 class="text-base font-bold text-slate-900 dark:text-white">رفع وثائق الهوية</h3>
 						</div>
 						<ws-identity-gate-status [state]="gate.state()" />
+                        <button type="button" data-testid="save-identity" (click)="sendIdentity()" [disabled]="identityBusy()" class="mb-4 rounded-xl bg-cyan-600 px-4 py-2 font-bold text-white disabled:opacity-50">{{ identityBusy() ? 'جارٍ فحص الملف وحفظ الهوية...' : 'حفظ الهوية والتحقق من المطابقة' }}</button>
 						@if (gateProblem(); as gp) {
 						<div role="alert" data-testid="identity-gate-problem" class="mb-5 rounded-xl border border-red-300 bg-red-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">{{ gp }}</div>
 						}
@@ -205,7 +206,7 @@
 								}
 								<div
 									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-6 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
-									<input type="file" class="hidden" id="frontIdFile" [disabled]="identityLocked()"
+									<input type="file" class="hidden" id="frontIdFile" [disabled]="identityLocked() || identityBusy()"
 										(change)="onFileSelected($event, 'identity', 'frontId')">
 									<label for="frontIdFile" class="cursor-pointer flex flex-col items-center">
 										@if (isUploading()['frontId']) {
@@ -232,7 +233,7 @@
 												class="w-4 h-4">
 												<polyline points="20 6 9 17 4 12" />
 											</svg>
-											تم تجهيز الملف بنجاح
+											{{ identityUploadMessage('frontId') }}
 										</div>
 										} @else if
 										(setupForm.get('identity.frontId')?.value?.startsWith('data:application/pdf')) {
@@ -254,7 +255,7 @@
 												class="w-4 h-4">
 												<polyline points="20 6 9 17 4 12" />
 											</svg>
-											تم تجهيز الملف بنجاح
+											{{ identityUploadMessage('frontId') }}
 										</div>
 										} @else {
 										<div
@@ -292,7 +293,7 @@
 								}
 								<div
 									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-6 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
-									<input type="file" class="hidden" id="backIdFile" [disabled]="identityLocked()"
+									<input type="file" class="hidden" id="backIdFile" [disabled]="identityLocked() || identityBusy()"
 										(change)="onFileSelected($event, 'identity', 'backId')">
 									<label for="backIdFile" class="cursor-pointer flex flex-col items-center">
 										@if (isUploading()['backId']) {
@@ -319,7 +320,7 @@
 												class="w-4 h-4">
 												<polyline points="20 6 9 17 4 12" />
 											</svg>
-											تم تجهيز الملف بنجاح
+											{{ identityUploadMessage('backId') }}
 										</div>
 										} @else if
 										(setupForm.get('identity.backId')?.value?.startsWith('data:application/pdf')) {
@@ -341,7 +342,7 @@
 												class="w-4 h-4">
 												<polyline points="20 6 9 17 4 12" />
 											</svg>
-											تم تجهيز الملف بنجاح
+											{{ identityUploadMessage('backId') }}
 										</div>
 										} @else {
 										<div

@@ -25,6 +25,7 @@ describe('IdentityGateService: matched setup progression with KYC unchanged', ()
   svc.apply(state({ canAdvance: true, automaticCheck: 'MATCHED' }));
   svc.save({ frontId: 'new-image' }).subscribe(); expect(svc.canAdvance()).toBe(false);
   http.expectOne(r => r.method === 'PUT').flush({ data: state({ automaticCheck: 'NOT_CHECKED' }) });
+  http.expectOne(r => r.method === 'GET').flush({ data: state({ automaticCheck: 'NOT_CHECKED' }) });
   expect(svc.canAdvance()).toBe(false);
   svc.apply(state({ canAdvance: true, automaticCheck: 'MATCHED' }));
   svc.load().subscribe({ error: () => undefined }); http.expectOne(r => r.method === 'GET').flush({}, { status: 503, statusText: 'Unavailable' });
@@ -35,4 +36,22 @@ describe('IdentityGateService: matched setup progression with KYC unchanged', ()
   svc.apply(state({ canAdvance: true, automaticCheck: 'MATCHED' })); svc.refusedByServer(); expect(svc.canAdvance()).toBe(false);
   http.expectOne(r => r.method === 'GET').flush({ data: state({ automaticCheck: 'NEEDS_REVIEW' }) }); expect(svc.canAdvance()).toBe(false);
  });
+ it('confirms saves with a fresh GET and ignores a pre-save missing-document response', () => {
+  svc.load().subscribe(); const old = http.expectOne(r => r.method === 'GET');
+  let saved: IdentityGateState | undefined;
+  svc.save({ frontId: 'new-image' }).subscribe(s => saved = s);
+  http.expectOne(r => r.method === 'PUT').flush({ data: state() });
+  expect(saved).toBeUndefined(); expect(svc.saving()).toBe(true);
+  http.expectOne(r => r.method === 'GET').flush({ data: state({ automaticCheck: 'MATCHED', canAdvance: true }) });
+  old.flush({ data: state({ status: 'NOT_SUBMITTED', data: { hasFront: false, hasBack: false }, missing: ['frontId'] }) });
+  expect(saved?.data.hasFront).toBe(true); expect(svc.state()?.missing).toEqual([]); expect(svc.canAdvance()).toBe(true);
+ });
+ it('does not confirm success if the post-save read fails', () => {
+  let saved = false;
+  svc.save({ frontId: 'new-image' }).subscribe({next: () => saved = true, error: () => undefined});
+  http.expectOne(r => r.method === 'PUT').flush({data: state()});
+  http.expectOne(r => r.method === 'GET').flush({}, {status: 503, statusText: 'Unavailable'});
+  expect(saved).toBe(false); expect(svc.saving()).toBe(false); expect(svc.canAdvance()).toBe(false);
+ });
+
 });

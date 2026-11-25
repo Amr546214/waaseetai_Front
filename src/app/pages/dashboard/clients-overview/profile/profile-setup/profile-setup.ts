@@ -80,6 +80,15 @@ export class ProfileSetupDashboard implements OnInit {
 	readonly gate = inject(IdentityGateService).use('CLIENT');
 	/** Why the identity could not be sent from step 2 (data of step 1 incomplete / refused by the server). */
 	gateProblem = signal<string | null>(null);
+	identityUploads = signal<Record<string, 'selected' | 'saving' | 'saved' | 'error'>>({});
+	identityBusy(): boolean { return this.gate.saving() || !!this.isUploading()['frontId'] || !!this.isUploading()['backId'] || ['frontId', 'backId'].some(s => this.idDocInspections()[s]?.status === 'scanning'); }
+	identityUploadMessage(slot: string): string {
+		const state = this.identityUploads()[slot];
+		if (state === 'saved') return 'تم رفع الملف وحفظه على السيرفر';
+		if (state === 'saving') return 'جارٍ رفع الملف وحفظه؛ لم يؤكّد السيرفر الحفظ بعد';
+		if (state === 'error') return 'لم يتأكد حفظ الملف؛ أعد المحاولة من زر حفظ الهوية';
+		return 'تم اختيار الملف للمعاينة فقط؛ لم يُحفظ بعد';
+	}
 	/** Under review the submitted documents cannot be changed or removed: they are decided first; after a rejection the owner uploads again. */
 	identityLocked(): boolean { return this.gate.status() === 'UNDER_REVIEW'; }
 	/** The back side is optional for every document kind: the front side is what the review relies on. */
@@ -308,8 +317,7 @@ export class ProfileSetupDashboard implements OnInit {
 
 	/** Identity documents were sent (a file in the form, or already under review): the review shows "تم الإرسال" instead of "اختياري". */
 	identityDocsProvided(): boolean {
-		const v = this.setupForm.getRawValue().identity;
-		return !!(v.frontId || this.storedDocs().frontId) || this.kycPending();
+		return this.identityUploads()['frontId'] === 'saved' || !!this.storedDocs().frontId || this.gate.state()?.data.hasFront === true;
 	}
 
 	/** Review shortcut to a step that is missing something: go there and show what is missing, right where the field is. */
@@ -348,7 +356,7 @@ export class ProfileSetupDashboard implements OnInit {
 	private advanceTo(target: number) {
 		const step = this.currentStep();
 		if (step >= target) { this.missing.set([]); return; }
-		if (this.isSavingStep()) return;
+		if (this.isSavingStep() || (step === 2 && this.identityBusy())) return;
 		if (!this.validateStep(step)) { this.focusSoon(); return; }
 		if (step === 2) { this.checkGate(() => this.afterStep(step, target)); return; }
 		this.persistStep(step, () => this.afterStep(step, target));
@@ -369,7 +377,8 @@ export class ProfileSetupDashboard implements OnInit {
 				if (g.canAdvance) { this.gateProblem.set(null); proceed(); return; }
 				this.gateProblem.set(g.status === 'UNDER_REVIEW' ? 'الوثيقة قيد المراجعة؛ تُفتح الخطوة التالية عند اكتمال مطابقة البيانات أو مراجعتها.' : g.status === 'REJECTED' ? 'الوثيقة مرفوضة؛ صحّح البيانات أو أعد رفع الصورة.' : 'ارفع صورة الوثيقة وأكمل بيانات الهوية لتبدأ المراجعة.');
 			},
-			error: () => { this.isSavingStep.set(false); this.gateProblem.set('تعذّر التحقق من حالة الوثيقة، حاول مرة أخرى.'); }
+			error: () => { this.isSavingStep.set(false); this.gateProblem.set('تعذّر التحقق من حالة الوثيقة، حاول مرة أخرى.'); },
+			complete: () => this.isSavingStep.set(false)
 		});
 	}
 
@@ -412,7 +421,11 @@ export class ProfileSetupDashboard implements OnInit {
 			next: (res: any) => {
 				this.isSavingStep.set(false);
 				// the details save re-evaluates the identity review on the server (a changed number/type/country cancels an old approval): re-read it
-				if (payload.step === 1) this.gate.load().subscribe({ error: () => { /* keeps the previous state */ } });
+				if (payload.step === 1) {
+					const identity = this.setupForm.getRawValue().identity;
+					if (this.newIdentityUpload('frontId', identity.frontId) || this.newIdentityUpload('backId', identity.backId)) this.sendIdentity();
+					else this.gate.load().subscribe({ error: () => { /* keeps the previous state */ } });
+				}
 				const pct = Number(res?.data?.completionPercentage);
 				const user = this.authStore.currentUser();
 				if (user && Number.isFinite(pct)) this.authStore.authenticate(this.authStore.token()!, { ...user, profileCompletionPercent: pct });
@@ -431,7 +444,7 @@ export class ProfileSetupDashboard implements OnInit {
 		const input = event.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
-		if (groupName === 'identity' && this.identityLocked()) { input.value = ''; return; }
+		if (groupName === 'identity' && (this.identityLocked() || this.identityBusy())) { input.value = ''; return; }
 
 		const rule = FILE_RULES[controlName];
 		const problem = rule ? validateFile(file, rule) : null;
@@ -448,6 +461,7 @@ export class ProfileSetupDashboard implements OnInit {
 		const isCurrent = () => this.idInspectionVersions[controlName] === inspectionVersion;
 		this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
 		this.isUploading.update(s => ({ ...s, [controlName]: true }));
+		if (groupName === 'identity') this.identityUploads.update(s => ({ ...s, [controlName]: 'selected' }));
 
 		const reader = new FileReader();
 		reader.onload = () => {
@@ -507,6 +521,7 @@ export class ProfileSetupDashboard implements OnInit {
 						if (identityImageRejected(d)) {
 							// not accepted: the picture is removed (form value and file input), the message under the field stays
 							(this.setupForm.get(groupName) as FormGroup)?.patchValue({ [controlName]: '' });
+							this.identityUploads.update(s => ({ ...s, [controlName]: 'error' }));
 							input.value = '';
 							// the number typed in the form is not the one on the document: the number box says so (the error clears when the number is edited)
 							if (identityNumberMismatch(d)) { const n = this.setupForm.get('details.idNumber'); n?.markAsTouched(); n?.setErrors({ server: NUMBER_MISMATCH_MESSAGE }); }
@@ -540,25 +555,33 @@ export class ProfileSetupDashboard implements OnInit {
 	 * upload alone never opens the next step; the server must confirm a full current match or approval. The user stays here and the form keeps everything (no data loss).
 	 */
 	sendIdentity(options: { removeBack?: boolean } = {}) {
+		if (this.identityBusy()) return;
 		const raw = this.setupForm.getRawValue();
 		const d = raw.details;
 		const issuer = this.setupForm.get('details.idDocumentType')?.disabled ? this.verifiedIssuer : identityCountryCode(d.country);
 		const problem = documentInputProblem(d.idNumber, issuer ?? null, d.idDocumentType || null);
 		if (problem || !d.idDocumentType || !issuer || !d.idNumber) {
 			if (!d.idDocumentType) this.typeNeedsPicking.set(true); // the AI could not tell the type from the picture: the list is shown
-			this.gateProblem.set('أكمل بيانات الهوية في الخطوة الأولى (الدولة ونوع الوثيقة ورقمها) ثم أعد رفع الصورة؛ الصورة محفوظة في النموذج.' + (problem ? ' ' + problem.message : ''));
+			this.gateProblem.set('لم يُحفظ الملف بعد. أكمل بيانات الهوية في الخطوة الأولى (الدولة ونوع الوثيقة ورقمها)، ثم اضغط حفظ الهوية؛ لا حاجة لاختيار الصورة مجددًا.' + (problem ? ' ' + problem.message : ''));
 			return;
 		}
 		const frontId = this.newIdentityUpload('frontId', raw.identity.frontId), backId = this.newIdentityUpload('backId', raw.identity.backId);
 		this.gateProblem.set(null);
+		for (const slot of ['frontId', 'backId'] as const) if (slot === 'frontId' ? frontId : backId) this.identityUploads.update(s => ({ ...s, [slot]: 'saving' }));
 		this.gate.save({
 			idIssuingCountry: issuer, idDocumentType: d.idDocumentType, idNumber: String(d.idNumber).trim(),
 			...(d.dob ? { dob: String(d.dob).slice(0, 10) } : {}), ...(frontId ? { frontId } : {}), ...(backId ? { backId } : {}),
 			...(options.removeBack && !backId ? { removeBackId: true } : {})
 		}).subscribe({
-			next: () => {
+			next: state => {
+				if ((frontId && !state.data.hasFront) || (backId && !state.data.hasBack)) {
+					this.gateProblem.set('لم يؤكد السيرفر حفظ الصورة. أعد المحاولة من زر حفظ الهوية.');
+					for (const slot of ['frontId', 'backId'] as const) if (slot === 'frontId' ? frontId : backId) this.identityUploads.update(s => ({ ...s, [slot]: 'error' }));
+					return;
+				}
 				if (frontId) this.savedIdentityUploads.frontId = frontId;
 				if (backId) this.savedIdentityUploads.backId = backId;
+				for (const slot of ['frontId', 'backId'] as const) if (slot === 'frontId' ? frontId : backId) this.identityUploads.update(s => ({ ...s, [slot]: 'saved' }));
 				if (options.removeBack && !backId) delete this.savedIdentityUploads.backId;
 				/* the status panel shows the new state; polling follows while it is under review */
 				resetClientIdentityRejectedCache(); // new documents sent: the REJECTED lock re-reads the real state on the next navigation
@@ -571,12 +594,14 @@ export class ProfileSetupDashboard implements OnInit {
 				// and the reason stays under the box instead of a banner at the top
 				for (const slot of ['frontId', 'backId'] as const) {
 					if (!(slot === 'frontId' ? frontId : backId)) continue;
-					this.setupForm.get('identity.' + slot)?.setValue('');
+					this.identityUploads.update(s => ({ ...s, [slot]: 'error' }));
+					// Keep the selected file for retry after network/server failures. A refused document must be replaced.
+					if (err?.status === 400 || err?.status === 409 || err?.status === 422) this.setupForm.get('identity.' + slot)?.setValue('');
 					const input = this.host.nativeElement.querySelector('#' + slot + 'File') as HTMLInputElement | null;
 					if (input) input.value = '';
 					this.idDocInspections.update(curr => ({ ...curr, [slot]: { status: 'warning', message } }));
 				}
-				this.gateProblem.set(null);
+				this.gateProblem.set('تعذّر تأكيد حفظ الهوية. ' + message);
 			}
 		});
 	}

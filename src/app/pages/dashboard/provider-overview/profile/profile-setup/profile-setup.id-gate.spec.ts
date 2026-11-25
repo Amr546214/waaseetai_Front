@@ -3,7 +3,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { ProfileSetupDashboard } from './profile-setup';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
@@ -113,4 +113,24 @@ describe('provider profile-setup: identity gate behaviour', { timeout: 30000 }, 
     expect(c.currentStep()).toBe(4);
     expect(c.gateProblem()).toContain('غير معتمدة');
   });
+  it('does not label a storage upload as saved until the gate confirms the reference; failures keep it for retry', async () => {
+    await mount('NOT_SUBMITTED', {country:'مصر', idNumber:'A1234567', idDocumentType:'PASSPORT'});
+    c.pendingRefs = {frontId:'private:new'};
+    const pending = new Subject<any>(); const save = vi.spyOn(c.gate,'save').mockReturnValue(pending);
+    c.sendIdentity(); expect(c.identitySaved().frontId).not.toBe(true);
+    pending.next({data:{hasFront:true,hasBack:false}}); pending.complete();
+    expect(c.identitySaved().frontId).toBe(true); expect(c.pendingRefs).toEqual({});
+    c.pendingRefs = {frontId:'private:retry'}; c.identitySaved.set({});
+    save.mockReturnValue(throwError(() => ({status:503}))); c.sendIdentity();
+    expect(c.pendingRefs.frontId).toBe('private:retry'); expect(c.identitySaved().frontId).not.toBe(true);
+  });
+  it('preserves a second pending reference when a prior save returns, then persists it', async () => {
+    await mount('NOT_SUBMITTED', {country:'مصر', idNumber:'A1234567', idDocumentType:'PASSPORT'});
+    c.pendingRefs = {frontId:'private:front'};
+    const first = new Subject<any>(); const save = vi.spyOn(c.gate,'save').mockReturnValueOnce(first).mockReturnValue(of({data:{hasFront:true,hasBack:true}}));
+    c.sendIdentity(); c.pendingRefs.backId = 'private:back';
+    first.next({data:{hasFront:true,hasBack:false}}); first.complete();
+    expect(save).toHaveBeenCalledTimes(2); expect(save.mock.calls[1][0]).toMatchObject({backId:'private:back'}); expect(c.pendingRefs).toEqual({});
+  });
+
 });

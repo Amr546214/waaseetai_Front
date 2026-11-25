@@ -1,7 +1,8 @@
 import { Injectable, OnDestroy, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { SKIP_LOADING } from '../interceptors/loading.interceptor';
-import { Observable, map, tap } from 'rxjs';
+import { SKIP_GET_CACHE } from '../interceptors/get-cache.interceptor';
+import { Observable, filter, map, switchMap, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export type IdentityGateStatus = 'NOT_SUBMITTED' | 'UNDER_REVIEW' | 'REJECTED' | 'APPROVED';
@@ -65,6 +66,7 @@ export class IdentityGateService implements OnDestroy {
 	private timer: ReturnType<typeof setTimeout> | null = null;
 	private delay = POLL_FIRST_MS;
 	private inFlight = false;
+	private revision = 0;
 
 	readonly state = signal<IdentityGateState | null>(null);
 	readonly saving = signal(false);
@@ -78,19 +80,27 @@ export class IdentityGateService implements OnDestroy {
 	private get url() { return `${environment.url_api}/${this.party === 'CLIENT' ? 'client' : 'provider'}/profile/setup/identity`; }
 
 	load(silent = false): Observable<IdentityGateState> {
-		return this.http.get<{ data: IdentityGateState }>(this.url, silent ? { context: new HttpContext().set(SKIP_LOADING, true) } : {}).pipe(
+		const revision = this.revision;
+		return this.http.get<{ data: IdentityGateState }>(this.url, { context: new HttpContext().set(SKIP_GET_CACHE, true).set(SKIP_LOADING, silent) }).pipe(
+			// A read started before a save must never restore the old missing-document state.
+			filter(() => revision === this.revision && !this.saving()),
 			map(r => r.data),
-			tap({ next: s => { this.loadFailed.set(false); this.apply(s); }, error: () => this.loadFailed.set(true) })
+			tap({ next: s => { this.loadFailed.set(false); this.apply(s); }, error: () => { if (revision === this.revision) this.loadFailed.set(true); } })
 		);
 	}
 
 	/** The identity step save: stores data + files and starts (or restarts) the review. A change after approval cancels the approval. */
 	save(body: IdentityGateSaveBody): Observable<IdentityGateState> {
+		const revision = ++this.revision;
+		this.stopPolling();
 		this.saving.set(true);
 		// SKIP_LOADING: the identity panel shows its own state; the app-wide loading overlay made every save look like a page reload
 		return this.http.put<{ data: IdentityGateState }>(this.url, body, { context: new HttpContext().set(SKIP_LOADING, true) }).pipe(
+			// Confirm the committed reference from a fresh read, not from a local preview or upload response.
+			switchMap(() => this.http.get<{ data: IdentityGateState }>(this.url, { context: new HttpContext().set(SKIP_LOADING, true).set(SKIP_GET_CACHE, true) })),
+			filter(() => revision === this.revision),
 			map(r => r.data),
-			tap({ next: s => { this.saving.set(false); this.apply(s); }, error: () => this.saving.set(false) })
+			tap({ next: s => { this.saving.set(false); this.apply(s); }, error: () => { if (revision === this.revision) { this.saving.set(false); this.loadFailed.set(true); } } })
 		);
 	}
 
@@ -117,11 +127,12 @@ export class IdentityGateService implements OnDestroy {
 		this.timer = setTimeout(() => {
 			this.timer = null;
 			if (typeof document !== 'undefined' && document.visibilityState === 'hidden') { this.schedule(); return; }
-			if (this.inFlight || this.status() !== 'UNDER_REVIEW') { if (this.status() === 'UNDER_REVIEW') this.schedule(); return; }
+			if (this.saving() || this.inFlight || this.status() !== 'UNDER_REVIEW') { if (this.status() === 'UNDER_REVIEW') this.schedule(); return; }
 			this.inFlight = true;
 			this.load(true).subscribe({
 				next: () => { this.inFlight = false; this.delay = Math.min(this.delay * 1.5, POLL_MAX_MS); },
 				error: () => { this.inFlight = false; this.delay = POLL_MAX_MS; if (this.status() === 'UNDER_REVIEW') this.schedule(); }
+				, complete: () => { this.inFlight = false; }
 			});
 		}, this.delay);
 	}

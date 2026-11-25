@@ -306,6 +306,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		return country ? { country } : {};
 	}
 	private pendingRefs: { frontId?: string; backId?: string } = {};
+	identitySaved = signal<Record<string, boolean>>({});
+	identityUploadMessage(slot: string): string {
+		if (this.identitySaved()[slot]) return 'تم رفع الملف وحفظه على السيرفر';
+		if (this.gate.saving()) return 'جارٍ حفظ مرجع الملف؛ لم يؤكّد السيرفر الحفظ بعد';
+		return 'تم رفع الملف؛ لم يُحفظ في الهوية بعد. أكمل البيانات ثم اضغط حفظ الهوية.';
+	}
 	private gateFresh = false;
 
 	/** the wizard's local draft (see provider-setup-draft.ts): written only after the server answer has been applied, so a blank form never overwrites a saved draft */
@@ -767,6 +773,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	/** The identity step save: ID data + the images uploaded now go to the server, which stores them and STARTS the review. The user stays here; nothing is erased. */
 	/** the Next button of the identity step: sends the document first when it was not sent yet (or the typed number differs from the stored one), then moves on */
 	identityNext() {
+		if (this.gate.saving() || this.isUploading()) return;
+		if (Object.keys(this.pendingRefs).length) { this.sendIdentity(() => this.goToStep(5)); return; }
 		const st = this.gate.status();
 		const typed = String(this.setupForm.get('docs.idNumber')?.value || '').trim();
 		const stored = String(this.gate.state()?.data?.idNumber ?? '').trim();
@@ -775,6 +783,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	sendIdentity(done?: () => void) {
+		if (this.gate.saving()) return;
 		const d = this.setupForm.getRawValue();
 		const issuer = this.storedIdentityIssuer || identityCountryCode(d.profData.country);
 		const problem = documentInputProblem(d.docs.idNumber, issuer, d.docs.idDocumentType || null);
@@ -791,13 +800,22 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			idIssuingCountry: issuer, idDocumentType: d.docs.idDocumentType, idNumber: String(d.docs.idNumber).trim(),
 			...(d.profData.dob ? { dob: String(d.profData.dob).slice(0, 10) } : {}), ...(frontId ? { frontId } : {}), ...(backId ? { backId } : {})
 		}).subscribe({
-			next: () => { this.pendingRefs = {}; done?.(); },
+			next: state => {
+				if ((frontId && !state.data.hasFront) || (backId && !state.data.hasBack)) { this.gateProblem.set('لم يؤكد السيرفر حفظ الصورة. اضغط حفظ الهوية لإعادة المحاولة.'); return; }
+				for (const slot of ['frontId', 'backId'] as const) {
+					const sent = slot === 'frontId' ? frontId : backId;
+					if (sent && this.pendingRefs[slot] === sent) { delete this.pendingRefs[slot]; this.identitySaved.update(s => ({ ...s, [slot]: true })); }
+				}
+				if (Object.keys(this.pendingRefs).length) this.sendIdentity(done); else done?.();
+			},
 			error: (err) => {
 				const message = mapHttpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى.' }).message;
 				if (!frontId && !backId) { this.gateProblem.set(message); return; }
+				if (![400, 409, 422].includes(err?.status)) { this.gateProblem.set('لم يتأكد حفظ مرجع الملف. أعد المحاولة من حفظ الهوية. ' + message); return; }
 				// refused document: the picture is removed right away (box empty again) and the reason stays under the box, not in a banner on top
 				for (const slot of ['frontId', 'backId'] as const) {
-					if (!this.pendingRefs[slot]) continue;
+					const sent = slot === 'frontId' ? frontId : backId;
+					if (!sent || this.pendingRefs[slot] !== sent) continue;
 					this.removeUploadedFile(slot);
 					delete this.pendingRefs[slot];
 					this.idDocInspections.update(curr => ({ ...curr, [slot]: { status: 'warning', message } }));
@@ -1138,6 +1156,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							...inspection
 						}
 					}));
+					if (!identityImageRejected(d) && this.pendingRefs[slot]) this.sendIdentity();
 					if (identityImageRejected(d)) {
 						// not accepted: the picture is removed (form, upload state, pending reference), the message under the field stays
 						this.removeUploadedFile(slot);
@@ -1170,6 +1189,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		if (type === 'backId') this.uploadedBackIdName.set(file.name);
 		if (type === 'selfie') this.uploadedSelfieName.set(file.name);
 		if (type === 'frontId' || type === 'backId') {
+			this.identitySaved.update(s => ({ ...s, [type]: false }));
 			this.runAdvisoryIdInspection(file, type);
 		}
 

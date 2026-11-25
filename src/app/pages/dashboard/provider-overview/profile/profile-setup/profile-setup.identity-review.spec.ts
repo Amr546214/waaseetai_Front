@@ -77,6 +77,8 @@ describe('provider setup wizard: identity review state', { timeout: 30000 }, () 
     await setup({ frontIdUrlAccess: FRONT, kycStatus: 'REJECTED', idNumber: 'A1234567', identityVerification: iv('REJECTED', 'الصورة غير واضحة') }, 'REJECTED', 'الصورة غير واضحة');
     fixture.detectChanges();
     expect(q('[data-testid="identity-gate-reason"]')!.textContent).toContain('الصورة غير واضحة');
+    expect(frontInput()).toBeNull(); // saved document is retained until replacement is explicit
+    component.replacingFront.set(true); fixture.detectChanges();
     expect(frontInput()!.disabled).toBe(false);
     expect(component.setupForm.get('docs.idNumber')!.value).toBe('A1234567');
     (component as any).goToStep(5);
