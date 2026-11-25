@@ -6,6 +6,7 @@ import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { Component, Input, Output, EventEmitter, inject, signal, computed, ChangeDetectorRef, effect, OnInit, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { AssistantToolbarState } from '../../assistant-widget/assistant-toolbar-state';
 import { AuthStore } from '../../../core/store/auth.store';
 import { DashboardStore } from '../../../core/store/dashboard.store';
 import { AccountType, UserRole } from '../../../core/models/auth.model';
@@ -50,6 +51,7 @@ export class Sidebar implements OnInit {
 	readonly adminCounts = inject(AdminSidebarCounts);
 	readonly clientOnboarding = inject(ClientOnboardingStateService);
 	private authStore = inject(AuthStore);
+	private readonly assistantTools = inject(AssistantToolbarState);
 	private ops = inject(OperationsPanelService);
 	private router = inject(Router);
 	public chatStateService = inject(ChatStateService);
@@ -253,7 +255,7 @@ export class Sidebar implements OnInit {
 	private withBeboTab(items: NavItem[], area: string): NavItem[] {
 		const logout = items.findIndex(item => item.type === 'button' && item.action === 'logout');
 		if (logout < 0) return items;
-		const bebo: NavItem = { type: 'link', label: 'وسيط AI', route: '/' + area + '/bebo', ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' };
+		const bebo: NavItem = { type: 'button', label: 'وسيط AI', action: 'assistant', id: area, ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' };
 		return [...items.slice(0, logout), bebo, ...items.slice(logout)];
 	}
 
@@ -465,7 +467,7 @@ export class Sidebar implements OnInit {
 			// Bebo's tool bar (moved here from the floating bar): directly above the logout button
 			{ type: 'header', label: 'المساعد' },
 			{ type: 'link', label: 'تفضيلات الإشعارات', route: '/supper-admin-overview/notification-settings', ws: 'i-bell', icon: icons.bell },
-			{ type: 'link', label: 'وسيط AI', route: '/supper-admin-overview/bebo', ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' },
+			{ type: 'button', label: 'وسيط AI', action: 'assistant', ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' },
 			{
 				type: 'button',
 				label: 'تسجيل الخروج',
@@ -1016,6 +1018,10 @@ export class Sidebar implements OnInit {
 	handleAction(action?: string) {
 		if (action === 'logout') {
 			this.logout();
+		} else if (action === 'assistant') {
+			// «وسيط AI» is not a page: it opens the assistant's own panel (chat, guide, motions, settings), the same one the floating robot opens
+			this.onCloseSidebar();
+			this.assistantTools.openTab('chat');
 		}
 	}
 

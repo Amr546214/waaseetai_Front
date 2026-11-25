@@ -125,6 +125,17 @@
 				</button>
 			}
 
+			<!-- «وسيط AI»: opens the assistant panel (not a page) -->
+			@if (item.type === 'button' && item.action === 'assistant') {
+				<button type="button" (click)="handleAction(item.action)" data-testid="sidebar-assistant" class="flex items-center gap-2.5 py-1.5 px-3 rounded-lg text-[length:var(--font-size-label)] font-normal text-slate-300/70 border border-transparent hover:text-slate-100 hover:bg-white/[0.04] transition-all duration-200 w-full text-right cursor-pointer group">
+					<svg aria-hidden="true" [attr.data-ws-icon]="item.ws ?? null" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+						class="w-4 h-4 shrink-0 stroke-[1.5] text-slate-400 group-hover:text-slate-200 transition-colors duration-200">
+						<path stroke-linecap="round" stroke-linejoin="round" [attr.d]="item.icon" />
+					</svg>
+					<span class="truncate">{{item.label}}</span>
+				</button>
+			}
+
 			<!-- Logout Button -->
 			@if (item.type === 'button' && item.action === 'logout') {
 				<a (click)="handleAction(item.action)" class="flex items-center gap-2.5 py-1.5 px-3 mt-1 rounded-lg text-[length:var(--font-size-label)] font-normal text-slate-400 border border-transparent hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 transition-all duration-200 w-full text-right cursor-pointer group" role="button" tabindex="0">
