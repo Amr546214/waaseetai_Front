@@ -79,7 +79,7 @@
 				(techInputChange)="techInput.set($event)" [technologiesUsed]="technologiesUsed()" [technologiesOptional]="isTechOptional()"
 				(onAddTechTag)="addTechTag()" (onRemoveTechTag)="removeTechTag($event)" [projectUrl]="projectUrl()"
 				(projectUrlChange)="projectUrl.set($event)" [githubUrl]="githubUrl()"
-				(githubUrlChange)="githubUrl.set($event)" [attachments]="attachments()"
+				(githubUrlChange)="githubUrl.set($event)" [attachments]="attachments()" [fileChecks]="fileChecks()" [refusedFiles]="refusedFiles()"
 				(onFileSelected)="onFileSelected($event)" (onHandleDrop)="handleDrop($event)"
 				(onRemoveAttachment)="removeAttachment($event)" [fieldErrors]="fieldErrors()" [existingProofs]="existingProofs()"
 				[highlightFields]="highlightFields()" (onRemoveExistingProof)="removeExistingProof($event)"

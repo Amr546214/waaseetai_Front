@@ -5,6 +5,7 @@ import { vi } from 'vitest';
 import { HttpErrorResponse } from '@angular/common/http';
 import { New } from './new';
 import { ProviderApiService } from '../../../../../../core/services/provider-api.service';
+import { ProviderProfileService } from '../../../../../../core/services/provider-profile.service';
 import { ProviderAccessService } from '../../../../../../core/services/provider-access.service';
 
 // Batch B T1 (§3, §4): proof files are mandatory, server field errors reach the field, «استكمال البيانات» re-opens the SAME request with its data.
@@ -22,6 +23,7 @@ describe('accreditation request form: proof files, field errors, completion', ()
 			providers: [
 				provideRouter([]),
 				{ provide: ProviderApiService, useValue: api },
+				{ provide: ProviderProfileService, useValue: { checkPortfolioFile: () => of({ success: true, data: { verdict: 'PASS', summaryAr: 'ok' } }) } },
 				{ provide: ProviderAccessService, useValue: { invalidate: vi.fn(), load: () => of({ state: 'PENDING_REVIEW', canAccessDashboard: false }) } },
 				{ provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(opts.resubmit ? { resubmit: opts.resubmit } : {}) } } },
 			],

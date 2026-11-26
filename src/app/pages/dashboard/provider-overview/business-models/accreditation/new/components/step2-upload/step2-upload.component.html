@@ -141,8 +141,10 @@
 						}
 
 						<!-- Uploaded Files List -->
+						@for (r of refusedFiles; track $index) { <ws-ai-note class="block mt-3" data-testid="wizard-ai-refused" [message]="r.name + ': ' + r.message" state="refused" /> }
 						<div *ngIf="attachments.length > 0" class="mt-4 space-y-2">
 							@for (att of attachments; track att.id) {
+							<div class="flex flex-col gap-2">
 							<div
 								class="flex items-center justify-between p-3 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl text-xs">
 								<div class="flex items-center gap-3">
@@ -159,6 +161,8 @@
 									class="text-[#FF6B6B] font-bold hover:underline cursor-pointer">
 									حذف
 								</button>
+							</div>
+							@if (fileChecks[att.id]; as chk) { <ws-ai-note data-testid="wizard-ai-check" [message]="chk.message" [state]="chk.status" /> }
 							</div>
 							}
 						</div>
