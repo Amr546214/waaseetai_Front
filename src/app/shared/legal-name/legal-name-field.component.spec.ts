@@ -17,19 +17,19 @@ describe('LegalNameFieldComponent: direct explicit save', () => {
 		fixture.detectChanges(); await fixture.whenStable(); fixture.detectChanges();
 	}
 	const type = (value: string) => { const i = q('legal-name-field-input') as HTMLInputElement; i.value = value; i.dispatchEvent(new Event('input')); fixture.detectChanges(); };
-	const clickSave = () => { q('legal-name-save')!.click(); fixture.detectChanges(); };
+	const clickSave = () => { (q('legal-name-field-input') as HTMLInputElement).dispatchEvent(new Event('blur')); fixture.detectChanges(); }; // there is no save button: leaving the field stores the name
 	const saved = (legalName: string) => of({ success: true, data: { outcome: 'SAVED', view: view({ legalName }) } });
 
 	it('validates a missing name and saves a cleaned value directly', async () => {
 		await mount(view({ status: 'MISSING', legalName: null })); type('عمرو');
-		expect(q('legal-name-problem')?.textContent).toContain('جزأين'); expect((q('legal-name-save') as HTMLButtonElement).disabled).toBe(true);
+		expect(q('legal-name-problem')?.textContent).toContain('جزأين'); (q('legal-name-field-input') as HTMLInputElement).dispatchEvent(new Event('blur')); expect(save).not.toHaveBeenCalled(); expect(q('legal-name-save')).toBeNull();
 		type(' عمرو   محمود '); save.mockReturnValue(saved('عمرو محمود')); clickSave();
 		expect(save).toHaveBeenCalledWith('عمرو محمود'); expect(q('legal-name-value')?.textContent).toBe('عمرو محمود'); expect(q('legal-name-note')?.textContent).toContain('تم حفظ');
 	});
-	it('a verified or pending identity still shows تعديل and حفظ, never request/review buttons', async () => {
+	it('a verified or pending identity still shows تعديل, saves on leaving the field, never request/review buttons', async () => {
 		await mount(view({ changeNeedsReview: true })); expect(q('legal-name-edit')?.textContent).toBe('تعديل');
 		q('legal-name-edit')!.click(); fixture.detectChanges(); type('عمرو أحمد');
-		expect(q('legal-name-save')?.textContent).toContain('حفظ الاسم الحقيقي'); save.mockReturnValue(saved('عمرو أحمد')); clickSave();
+		expect(q('legal-name-save')).toBeNull(); save.mockReturnValue(saved('عمرو أحمد')); clickSave();
 		expect(q('legal-name-value')?.textContent).toBe('عمرو أحمد'); expect(fixture.nativeElement.textContent).not.toContain('قيد المراجعة'); expect(q('legal-name-review-note')).toBeNull();
 	});
 	it('a legacy verified account adds its missing legal name directly', async () => {
@@ -41,10 +41,12 @@ describe('LegalNameFieldComponent: direct explicit save', () => {
 		for (const id of ['legal-name-pending','legal-name-edit-request','legal-name-withdraw']) expect(q(id)).toBeNull();
 		save.mockReturnValue(saved('عمرو محمود يحيى محمد')); clickSave(); expect(save).toHaveBeenCalledWith('عمرو محمود يحيى محمد'); expect(q('legal-name-value')?.textContent).toBe('عمرو محمود يحيى محمد');
 	});
-	it('onboarding keeps a visible save button; typing or blurring never submits a name', async () => {
-		await mount(view(), true); type('عمرو أحمد'); (q('legal-name-field-input') as HTMLInputElement).dispatchEvent(new Event('blur'));
-		expect(save).not.toHaveBeenCalled(); expect(q('legal-name-save')).not.toBeNull();
-		save.mockReturnValue(saved('عمرو أحمد')); clickSave(); expect((q('legal-name-field-input') as HTMLInputElement).value).toBe('عمرو أحمد');
+	it('onboarding has no save button: typing alone never submits, leaving the field (or Enter) stores a valid changed name once', async () => {
+		await mount(view(), true); type('عمرو أحمد');
+		expect(save).not.toHaveBeenCalled(); expect(q('legal-name-save')).toBeNull();
+		save.mockReturnValue(saved('عمرو أحمد')); clickSave();
+		expect(save).toHaveBeenCalledTimes(1); expect((q('legal-name-field-input') as HTMLInputElement).value).toBe('عمرو أحمد');
+		clickSave(); expect(save).toHaveBeenCalledTimes(1); // unchanged: nothing more is sent
 	});
 	it('while saving, blocks duplicate submissions and editing; only a server-confirmed save emits saved', async () => {
 		await mount(view(), true); const response = new Subject<any>(); save.mockReturnValue(response); const emit = vi.spyOn(fixture.componentInstance.saved, 'emit');

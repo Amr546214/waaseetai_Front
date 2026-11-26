@@ -42,7 +42,7 @@ describe('marketer KYC card (#51)', () => {
 	it('a marketer with an approved document still edits and saves the private legal name immediately', () => {
 		setup('APPROVED'); q('legal-name-edit')!.click(); fixture.detectChanges();
 		const input = q('legal-name-field-input') as HTMLInputElement; input.value = 'اسم هوية جديد'; input.dispatchEvent(new Event('input')); fixture.detectChanges();
-		q('legal-name-save')!.click(); fixture.detectChanges();
+		input.dispatchEvent(new Event('blur')); fixture.detectChanges();
 		expect(saveLegalName).toHaveBeenCalledWith('اسم هوية جديد');
 		expect(q('legal-name-value')?.textContent).toBe('اسم هوية جديد');
 		expect(q('legal-name-note')?.textContent).toContain('تم حفظ');
