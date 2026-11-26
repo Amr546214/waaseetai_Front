@@ -94,7 +94,7 @@
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'contact'" (click)="setTab('contact')"
     role="tab" aria-selected="false">بيانات التواصل<span class="sr-only" data-testid="contact-tab-readonly">للعرض فقط</span></button>
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'payout'" (click)="setTab('payout')"
-    role="tab" aria-selected="false">حساب PayPal</button>
+    role="tab" aria-selected="false">طرق الدفع</button>
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'docs'" (click)="setTab('docs')"
     role="tab" aria-selected="false">المستندات</button>
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'security'" (click)="setTab('security')"
@@ -464,38 +464,15 @@
           <use href="#i-wallet"></use>
         </svg></div>
       <div>
-        <div class="form-card-title">حساب PayPal لاستلام المدفوعات</div>
-        <div class="form-card-sub">المنصة تدعم حاليًا PayPal فقط لاستلام المستحقات</div>
+        <div class="form-card-title">طرق الدفع والسحب</div>
+        <div class="form-card-sub">تُدار من تاب «طرق الدفع» في المالية</div>
       </div>
     </div>
-    <div class="free-bar" data-testid="paypal-policy" role="note">
+    <div class="free-bar" data-testid="payment-methods-pointer" role="note">
       <div class="free-bar-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
-      <div class="free-bar-txt">
-        @if (paypalHasEmail()) {
-          يتم تأكيد تغيير بريد PayPal برمز تحقق يُرسل إلى بريد حسابك.
-          بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.
-          لا يحتاج تغيير بريد PayPal إلى مراجعة يدوية.
-        } @else {
-          سنرسل رمز تحقق إلى بريد حسابك لتأكيد إضافة بريد PayPal.
-          بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.
-          لا تحتاج إضافة بريد PayPal إلى مراجعة يدوية.
-        }
-      </div>
+      <div class="free-bar-txt">لا تُكتب بيانات الدفع هنا. أضف حساب الاستلام ووثّقه من «طرق الدفع»، والسحب متاح فقط إلى الحسابات الموثقة.</div>
     </div>
-    <div class="form-grid form-col-2" id="pp-fields">
-      <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="pp-email">بريد PayPal<span class="ws-req" aria-hidden="true">*</span></label><input
-          type="email" id="pp-email" aria-required="true" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com"
-          dir="ltr" inputmode="email" autocomplete="email" spellcheck="false"
-          [attr.aria-invalid]="payoutForm.get('paypalPayoutEmail')?.invalid && payoutForm.get('paypalPayoutEmail')?.touched ? 'true' : null"><span class="inp-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal. @if (paypalHasEmail()) { تغييره يتطلب رمزًا يُرسل إلى بريد حسابك، ويتوقف السحب عبر PayPal 24 ساعة بعده. } @else { إضافته تتطلب رمزًا يُرسل إلى بريد حسابك، ويتوقف السحب عبر PayPal 24 ساعة بعده. }</span><ws-field-error [control]="payoutForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
-      </div>
-    </div>
-    <ws-form-summary [items]="missingPayout()" (select)="onSummarySelect($event)" />
-    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal() || paypalSendWait.active()" (click)="savePaypal()">{{ savingPaypal() ? 'جاري الإرسال...' : (paypalHasEmail() ? 'تغيير بريد PayPal' : 'إضافة بريد PayPal') }}@if (paypalSendWait.active()) { <span data-testid="paypal-send-wait"> {{ paypalSendWait.label() }}</span> }</button>
-    </div>
-    @if (paypalRequestError()) { <div role="alert" data-testid="paypal-request-error" class="inp-hint inline-error" style="margin-top:8px">{{ paypalRequestError() }}</div> }
-    @if (pendingPaypalEmail(); as pending) {
-      <ws-paypal-email-confirm [email]="pending" [mode]="paypalConfirmMode()" [accountEmailHint]="paypalAccountEmailHint()" (confirmed)="onPaypalConfirmed($event)" (dismissed)="pendingPaypalEmail.set(null)" />
-    }
+    <div class="actions-row"><a class="btn-primary" routerLink="/provider-overview/finance/payment-methods" data-testid="go-payment-methods">الذهاب إلى طرق الدفع</a></div>
   </div>
 </div>
 

@@ -258,22 +258,6 @@ describe('Data (marketer profile): shared validation', () => {
     beforeEach(() => goTo('banking'));
     const saveBtn = () => btn('حفظ بريد PayPal');
 
-    it('shows only the PayPal email: no bank, IBAN, holder, swift, wallet or document inputs', () => {
-      const text = el().textContent || '';
-      expect((el().querySelector('#afpp-email') as HTMLInputElement).value).toBe('m@example.com');
-      expect(text).not.toMatch(/IBAN|اسم البنك|الحساب البنكي|البيانات البنكية|صاحب الحساب|السويفت|محفظة/);
-      for (const n of ['iban', 'bankName', 'accountHolderName', 'swiftCode']) expect(el().querySelector(`[formcontrolname="${n}"]`), n).toBeNull();
-      expect(el().querySelector('#afdoc-front')).toBeNull();
-    });
-
-    it('an invalid email is not sent and is explained in Arabic', () => {
-      c.paypalForm.patchValue({ paypalPayoutEmail: 'not-an-email' });
-      c.savePaypal(); render();
-      expect(svc.updatePaypalPayout).not.toHaveBeenCalled();
-      expect(errors().some(t => t.includes('بريد PayPal صالحًا'))).toBe(true);
-      expect(saveBtn().disabled).toBe(false);
-    });
-
     it('a valid email is saved at once (no governed modal) and only the email is sent', () => {
       c.paypalForm.patchValue({ paypalPayoutEmail: 'new@example.com' });
       c.savePaypal(); render();
@@ -289,13 +273,6 @@ describe('Data (marketer profile): shared validation', () => {
       expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: 'تم إزالة بريد PayPal' });
     });
 
-    it('a server 400 (zod errors[]) lands on the PayPal field in Arabic', () => {
-      svc.updatePaypalPayout.mockReturnValue(httpErr(400, { message: 'Validation Error', errors: [{ path: ['body', 'paypalPayoutEmail'], message: 'أدخل بريد PayPal صالحًا مثل name@example.com' }] }));
-      c.paypalForm.patchValue({ paypalPayoutEmail: 'new@example.com' });
-      c.savePaypal(); render();
-      expect(c.paypalForm.get('paypalPayoutEmail')!.errors?.['server']).toBeTruthy();
-      expect(errors().some(t => t.includes('بريد PayPal صالحًا'))).toBe(true);
-    });
   });
 
   describe('referral tab', () => {

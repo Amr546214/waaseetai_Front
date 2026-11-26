@@ -429,9 +429,9 @@
       "seconds": 8.4
     },
     "cpe-paypal": {
-      "hash": "a9d3fc17735c8cf0",
-      "bytes": 57980,
-      "seconds": 9.6
+      "hash": "c74cde0bb3606fee",
+      "bytes": 54524,
+      "seconds": 9
     }
   }
 }

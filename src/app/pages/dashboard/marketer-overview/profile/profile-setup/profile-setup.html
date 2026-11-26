@@ -138,22 +138,18 @@
       </div>
     }
 
-    <!-- Step 4: بريد PayPal (the only payout destination) -->
+    <!-- Step 4: طرق الدفع (managed in the finance tab; nothing is typed here) -->
     @if (currentStep() === 4) {
-      <div class="form-card" [formGroup]="paypalForm">
+      <div class="form-card">
         <div class="form-card-hdr">
           <div class="form-card-ico" style="background:rgba(15,169,154,.10);color:#0FA99A"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div>
-          <div><div class="form-card-title">بريد PayPal</div><div class="form-card-sub">يُستخدم PayPal فقط للمدفوعات على المنصة، وإليه تُحوَّل أرباحك عند السحب</div></div>
+          <div><div class="form-card-title">طرق الدفع والسحب</div><div class="form-card-sub">تُدار من تاب «طرق الدفع» في المالية، والسحب متاح فقط إلى حسابات موثقة</div></div>
         </div>
-        <div class="form-grid form-col2">
-          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="ps-paypal">بريد PayPal<span class="ws-req" aria-hidden="true">*</span></label><input type="email" id="ps-paypal" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com" dir="ltr" inputmode="email" autocomplete="email" spellcheck="false" aria-required="true">
-            <ws-field-error [control]="paypalForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ required: 'بريد PayPal مطلوب', email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" /></div>
-        </div>
+        <p class="txt-muted" style="line-height:1.9" data-testid="payout-methods-note">لا تُكتب بيانات الدفع هنا. هذه الخطوة اختيارية: يمكنك المتابعة الآن وإضافة حساب الاستلام ووثّقه لاحقًا من «طرق الدفع».</p>
       </div>
       <ws-form-summary [items]="missing()" />
       <div class="actions-row">
-        <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="savePaypal()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
-        <button type="button" class="btn-secondary" (click)="nextStep()">التالي</button>
+        <button type="button" class="btn-primary" (click)="nextStep()">التالي</button>
       </div>
     }
 
@@ -171,7 +167,7 @@
         <div class="review-row"><span class="txt-muted">الصورة الشخصية</span><span class="txt-white" data-testid="avatar-state">{{ avatarState() }}</span></div>
         <div class="review-row"><span class="txt-muted">الوصف التسويقي</span><span class="txt-white" data-testid="bio-state">{{ bioState() }}</span></div>
         <div class="review-row"><span class="txt-muted">قنوات التسويق</span><span class="txt-white">{{ hasChannel() ? 'تمت إضافة قناة' : 'لم تُضف بعد' }}</span></div>
-        <div class="review-row"><span class="txt-muted">بريد PayPal</span><span class="txt-white" data-testid="paypal-state">{{ paypalState() }}</span></div>
+        <div class="review-row"><span class="txt-muted">طرق الدفع</span><span class="txt-white" data-testid="paypal-state">من المالية (اختياري الآن)</span></div>
       </div>
       <div class="actions-row"><button type="button" class="btn-primary" (click)="finish()">إنهاء</button></div>
     }

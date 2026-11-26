@@ -47,7 +47,6 @@ export function resolveProviderSetup(data: ProviderSetupData | null | undefined)
 	if (!(filled(d.headline) || filled(d.industry)) || !d.yearsOfExperience || !filled(d.country) || !filled(d.city) || !filled(d.bio)) return { kind: 'step', step: 1 };
 	const subs = Array.isArray(d.subSpecialties) ? d.subSpecialties.filter(Boolean) : [];
 	if (!filled(d.mainSpecialty) || subs.length === 0) return { kind: 'step', step: 2 };
-	if (!filled(d.paypalPayoutEmail)) return { kind: 'step', step: 3 };
 	// an ID document that was sent counts (a private one is not visible here, only marked); "under review" is not "missing"
 	if (!filled(d.frontIdUrl) && !d.frontIdUrlAccess?.private) return { kind: 'step', step: 4 };
 	// a model counts only with its file AND at least one proof of ownership (a private file shows up as an Access flag)

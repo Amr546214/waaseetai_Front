@@ -28,7 +28,7 @@ export const CLIENT_PROFILE_EDIT_TOUR: TourDefinition = {
 			text: 'الهوية والتوثيق. بيانات الهوية هنا للعرض فقط، وتُدخل وتُراجع من مسار استكمال البيانات، ولا تُعدَّل من هذه الصفحة.' },
 		{ id: 'cpe-contact', route: R, click: tab('contact'), target: 'app-phone-input[formcontrolname="alternativePhone"]', title: 'بيانات التواصل',
 			text: 'بيانات التواصل. يُحفظ رقم واتساب ومدينة الإقامة. واختيار الدولة يحدد قائمة المدن.' },
-		{ id: 'cpe-paypal', route: R, click: tab('banking'), target: '#cl-paypal', title: 'بريد PayPal',
-			text: 'بريد PayPal. يُستخدم للمدفوعات والاسترداد، ويُحفظ مباشرة دون مراجعة، ويمكنك ترك الحقل فارغًا لإزالته.' },
+		{ id: 'cpe-paypal', route: R, click: tab('banking'), target: '[data-testid="payment-methods-pointer"]', title: 'طرق الدفع',
+			text: 'طرق الدفع. لا تُكتب بيانات الدفع هنا، بل تُدار من تاب طرق الدفع في المالية، والسحب متاح فقط إلى الحسابات الموثقة.' },
 	],
 };

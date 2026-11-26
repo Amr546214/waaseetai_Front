@@ -152,45 +152,13 @@ describe('provider setup AI suggestions', () => {
     expect(save.mock.calls[0][0]).not.toHaveProperty('bank');
   });
 
-  describe('step 3: PayPal only', () => {
+  describe('step 3: payment methods are not typed here any more', () => {
     beforeEach(() => { component.currentStep.set(3); fixture.detectChanges(); });
-
-    it('shows the PayPal email field and none of the bank fields', () => {
+    it('shows a pointer to طرق الدفع and no PayPal / bank input; the step never blocks', () => {
       const el: HTMLElement = fixture.nativeElement;
-      const panel = el.querySelector('[formgroupname="payout"]') as HTMLElement;
-      expect(panel.textContent).toContain('حساب PayPal لاستلام المدفوعات');
-      expect(panel.textContent).toContain('سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal.');
-      expect(panel.querySelector('#pr-paypal')).toBeTruthy();
-      for (const gone of ['#pr-bank', '#pr-acct-owner', '#pr-iban']) expect(el.querySelector(gone)).toBeNull();
-      expect(panel.textContent).not.toMatch(/IBAN|الآيبان|اسم البنك|صاحب الحساب/);
-      expect(el.querySelectorAll('[formgroupname="bank"]').length).toBe(0);
-    });
-
-    it('PayPal email is required and must be a valid email', () => {
-      const c = component.setupForm.get('payout.paypalEmail')!;
-      expect(c.valid).toBe(false);
-      c.setValue('not-an-email'); expect(c.valid).toBe(false);
-      c.setValue('a@b'); expect(c.valid).toBe(false);
-      c.setValue('name@example.com'); expect(c.valid).toBe(true);
-    });
-
-    it('an invalid email shows the validation message once touched', () => {
-      const c = component.setupForm.get('payout.paypalEmail')!;
-      c.setValue('bad'); c.markAsTouched(); fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector('#pr-paypal-hint').textContent).toContain('أدخل بريد PayPal صالحًا');
-      c.setValue('name@example.com'); fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector('#pr-paypal-hint').textContent).toContain('سنستخدم هذا البريد');
-    });
-
-    it('cannot move past step 3 with an invalid email, and can with a valid one', () => {
-      const c = component.setupForm.get('payout.paypalEmail')!;
-      c.setValue('bad');
-      component.goToStep(4);
-      expect(component.currentStep()).toBe(3);
-      expect(c.touched).toBe(true);
-      c.setValue('name@example.com');
-      component.goToStep(4);
-      expect(component.currentStep()).toBe(4);
+      expect(el.querySelector('[data-testid="payout-methods-note"]')?.textContent).toContain('طرق الدفع');
+      expect(el.querySelector('#pr-paypal')).toBeNull();
+      expect(component.setupForm.get('payout')!.valid).toBe(true);
     });
   });
 
