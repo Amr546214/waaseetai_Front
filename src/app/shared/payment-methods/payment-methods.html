@@ -24,7 +24,7 @@
     <h2 class="section-title">طرقك المضافة</h2>
     @if (!data.methods.length) { <div class="empty-state"><h3>ابدأ بإضافة طريقة</h3><p>اربط PayPal أو احفظ حساب الراجحي من الخيارات أعلاه.</p></div> }
     <div class="saved-methods">@for (method of data.methods; track method.id) { <article class="method-card"><div class="method-heading"><strong>{{ method.label }}</strong>@if (method.isDefault) { <span class="badge">الافتراضية</span> }</div><bdi class="account-hint">{{ method.hint }}</bdi><p class="status" [class.connected]="method.status === 'CONNECTED'">{{ status(method) }}</p>
-      @if (method.kind === 'ALRAJHI') { <p class="muted">التحويل البنكي غير متاح حاليًا.</p> }
+      @if (method.kind === 'ALRAJHI') { <p class="muted">حساب الراجحي محفوظ ومعلّق (Pending): يُفعَّل للتحويل البنكي بعد اعتماد التحقق من الملكية.</p> }
       @if (method.status === 'EMAIL_UNCONFIRMED') { <p class="muted">أكّد بريدك داخل PayPal ثم أعد ربط الحساب.</p> }
       <div class="actions">@if (method.canActivate) { <button type="button" class="primary" [disabled]="busy()" (click)="activate(method)">تأكيده كبريد السحب</button> }@if (method.status === 'CONNECTED' && !method.isDefault) { <button type="button" [disabled]="busy()" (click)="setDefault(method)">تعيين كافتراضية</button> }@if (method.kind === 'ALRAJHI') { <button type="button" [disabled]="busy()" (click)="editBank(method)">تعديل البيانات</button> }<button type="button" class="danger" [disabled]="busy()" (click)="removeTarget.set(method)">{{ method.kind === 'PAYPAL' ? 'فصل الربط' : 'إزالة' }}</button></div>
     </article> }</div>
