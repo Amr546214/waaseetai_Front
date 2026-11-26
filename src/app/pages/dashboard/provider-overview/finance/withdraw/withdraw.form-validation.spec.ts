@@ -4,6 +4,7 @@ import { Subject, of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { Withdraw } from './withdraw';
 import { WithdrawalApiService } from '../../../../../core/services/withdrawal-api.service';
+import { PaymentMethodsApi } from '../../../../../core/services/payment-methods-api.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { expectFocused, httpFail, settleForm } from '../../../../../shared/forms/form-spec-utils';
@@ -25,6 +26,7 @@ describe('provider withdraw: form wiring and no ready-made amounts', () => {
 				provideRouter([]),
 				{ provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'PROVIDER_INDIVIDUAL' }) } },
 				{ provide: ProviderProfileService, useValue: { getProfile: () => of({ paypalPayoutEmail: email }) } },
+				{ provide: PaymentMethodsApi, useValue: { list: () => of({ methods: email ? [{ kind: 'PAYPAL', status: 'CONNECTED', hint: email }] : [] }) } },
 				{ provide: WithdrawalApiService, useValue: {
 					getProviderWallet: () => of({ data: { summary: { availableBalance: balance, totalEarnings: balance, escrowBalance: 0, currency: 'USD' } } }),
 					getProviderWithdrawals: () => of({ data: { withdrawals: [], pagination: { total: 0, totalPages: 1 } } }),
@@ -73,7 +75,7 @@ describe('provider withdraw: form wiring and no ready-made amounts', () => {
 		expect(submit).not.toHaveBeenCalled();
 		const target = el().querySelector('#wdPaypal') as HTMLElement;
 		expectFocused(target);
-		expect(el().querySelector('.wd-field-err[role=alert]')!.textContent).toContain('أضف بريد PayPal');
+		expect(el().querySelector('.wd-field-err[role=alert]')!.textContent).toContain('PayPal موثّق');
 	});
 
 	it('backend 422 naming the amount lands at the amount field and keeps what was typed', async () => {

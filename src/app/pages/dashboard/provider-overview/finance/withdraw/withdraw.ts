@@ -1,3 +1,4 @@
+import { PaymentMethodsApi } from '../../../../../core/services/payment-methods-api.service';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -71,6 +72,7 @@ export class Withdraw implements OnInit {
   amount = signal<number | null>(null);
   /** PayPal is the only supported payout method for now; the destination is the provider's saved PayPal email. */
   readonly method = 'paypal';
+  private readonly paymentMethodsApi = inject(PaymentMethodsApi);
   paypalEmail = signal('');
   paypalLoading = signal(true);
 
@@ -96,12 +98,12 @@ export class Withdraw implements OnInit {
     this.loadHistory();
   }
 
-  /** The destination is resolved server-side from the saved profile; it is only read here to show it. */
+  /** The destination is a PayPal account LINKED and confirmed through PayPal (طرق الدفع); the server resolves it itself, it is only read here (masked) to show it. A typed / legacy e-mail is never a destination. */
   private loadPaypalEmail() {
     this.paypalLoading.set(true);
-    this.providerProfileService.getProfile().subscribe({
-      next: profile => {
-        this.paypalEmail.set((profile?.paypalPayoutEmail || '').trim());
+    this.paymentMethodsApi.list('PROVIDER').subscribe({
+      next: state => {
+        this.paypalEmail.set(state.methods.find(m => m.kind === 'PAYPAL' && m.status === 'CONNECTED')?.hint ?? '');
         this.paypalLoading.set(false);
       },
       error: () => this.paypalLoading.set(false),
@@ -225,7 +227,7 @@ export class Withdraw implements OnInit {
     }
 
     if (!this.paypalEmail()) {
-      errors['paypal'] = 'أضف بريد PayPal لاستلام الأرباح';
+      errors['paypal'] = 'اربط حساب PayPal موثّق من «طرق الدفع» لتتمكن من السحب';
     }
 
     this.formErrors.set(errors);

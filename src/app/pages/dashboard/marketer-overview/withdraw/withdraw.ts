@@ -152,7 +152,7 @@ export class Withdraw implements OnInit {
 
     const blocked = this.blockedReason();
     if (!this.hasPaypal()) {
-      this.notify.error('أضف بريد PayPal لاستلام الأرباح');
+      this.notify.error('اربط حساب PayPal موثّق من «طرق الدفع» لتتمكن من السحب');
       return;
     }
     if (blocked) {
