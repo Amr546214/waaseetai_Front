@@ -57,7 +57,7 @@ export class PaymentMethods implements OnInit {
     this.api.list(this.role).pipe(takeUntilDestroyed(this.destroy), finalize(() => this.loading.set(false))).subscribe({ next: value => this.state.set(value), error: e => this.error.set(this.message(e)) });
   }
   status(method: SavedPaymentMethod) {
-    return ({ UNVERIFIED: 'محفوظ — لم تُتحقق الملكية', EMAIL_UNCONFIRMED: 'الحساب مرتبط — البريد غير مؤكَّد', CONNECTED: 'تم ربط حساب PayPal', NEEDS_ACTIVATION: 'مرتبط — أكمل تأكيد بريد السحب' })[method.status];
+    return ({ UNVERIFIED: 'قيد الاعتماد (Pending) — محفوظ ولم تُتحقق الملكية بعد', EMAIL_UNCONFIRMED: 'الحساب مرتبط — البريد غير مؤكَّد', CONNECTED: 'تم ربط حساب PayPal', NEEDS_ACTIVATION: 'مرتبط — أكمل تأكيد بريد السحب' })[method.status];
   }
   connectPaypal() {
     const origin = this.state()?.capabilities.paypalConnectOrigin;
