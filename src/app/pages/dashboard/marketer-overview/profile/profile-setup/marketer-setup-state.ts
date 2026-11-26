@@ -26,6 +26,7 @@ const STEP_OF: Record<string, 2 | 3 | 4> = { avatar: 2, bio: 2, channel: 3, payo
 const REQUIRED_SETUP_KEYS = ['bio', 'channel'] as const;
 
 export function isMarketerOnboardingAllowedPath(url: string): boolean {
+	if ((url || '').split(/[?#]/)[0].replace(/\/$/, '') === '/marketer-overview/finance/payment-methods') return true;
 	const path = (url || '').split(/[?#]/)[0].replace(/^\/?marketer-overview\/?/, '').replace(/^\/+|\/+$/g, '');
 	return MARKETER_ONBOARDING_ALLOWED_PATHS.some(p => path === p || path.startsWith(p + '/'));
 }

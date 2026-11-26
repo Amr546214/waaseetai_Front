@@ -15,6 +15,7 @@ import { MARKETER_ROUTES } from './pages/dashboard/marketer-overview/marketer.ro
 import { SUPPER_ADMIN_ROUTES } from './pages/dashboard/supper-admin-overview/supper-admin.routes';
 
 export const routes: Routes = [
+  { path: 'payment-methods/paypal-return', canActivate: [authGuard], data: { hideAssistant: true }, loadComponent: () => import('./shared/payment-methods/paypal-return').then(m => m.PaypalReturn) },
 	{ path: 'assistant', canActivate: [authGuard], data: { hideAssistant: true }, loadComponent: () => import('./pages/assistant/assistant-page').then(m => m.AssistantPageComponent) },
 	{
 		path: '',

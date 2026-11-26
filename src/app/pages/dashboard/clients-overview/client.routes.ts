@@ -2,6 +2,7 @@ import { Routes } from "@angular/router";
 import { clientSetupGuard } from './profile/profile-setup/profile-setup.guard';
 
 export const CLIENT_OVERVIEW_ROUTES: Routes = [
+	{ path: 'finance/payment-methods', data: { title: 'طرق الدفع', paymentRole: 'CLIENT', allowIncompleteProfile: true }, loadComponent: () => import('../../../shared/payment-methods/payment-methods').then(m => m.PaymentMethods) },
 	{
 		path: '',
 		loadComponent: () => import('./client-overview/client-overview.component').then(m => m.ClientOverviewComponent),

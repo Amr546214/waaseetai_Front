@@ -1,0 +1,33 @@
+<section class="payment-page" dir="rtl" aria-labelledby="payment-title" [attr.aria-busy]="loading() || busy()">
+  <header class="page-heading"><div><p class="eyebrow">المالية</p><h1 id="payment-title">طرق الدفع</h1><p>أضف حسابات استلام مستحقاتك وأدرها من مكان واحد.</p></div><span class="secure-note">بياناتك محفوظة بأمان</span></header>
+  @if (error()) { <div class="message error" role="alert">{{ error() }} @if (!state() && !loading()) { <button type="button" (click)="load()">إعادة المحاولة</button> }</div> }
+  @if (notice()) { <div class="message success" role="status">{{ notice() }}</div> }
+  @if (loading()) { <div class="loading" role="status">جارٍ تحميل طرق الدفع…</div> }
+  @if (state(); as data) {
+    @if (data.environment === 'sandbox') { <p class="message info">بيئة تجريبية — حسابات Sandbox فقط، ولا تُنفذ تحويلات مالية من هذه الصفحة.</p> }
+    <div class="add-options">
+      <article class="add-card"><span class="brand paypal">PayPal</span><h2>حساب PayPal</h2><p>اربط حسابك عبر PayPal لتأكيد الحساب والبريد مباشرة.</p><button type="button" class="primary" [disabled]="busy() || !data.capabilities.paypalConnect" (click)="connectPaypal()">ربط / تحديث حساب PayPal</button>@if (!data.capabilities.paypalConnect) { <small>ربط PayPal غير متاح حاليًا. حساباتك المحفوظة تظل ظاهرة أدناه.</small> }</article>
+      <article class="add-card"><span class="brand bank">مصرف الراجحي</span><h2>حساب بنكي</h2><p>احفظ بيانات حسابك. حفظ الآيبان وحده لا يؤكد ملكية الحساب.</p><button type="button" class="secondary" [disabled]="busy() || !data.capabilities.bankSave" (click)="newBank()">إضافة / تحديث حساب الراجحي</button>@if (!data.capabilities.bankSave) { <small>إضافة الحساب البنكي غير متاحة حاليًا.</small> }</article>
+    </div>
+    @if (data.legacyPaypal; as legacy) { <aside class="legacy"><strong>بريد السحب المحفوظ</strong><bdi>{{ legacy.hint }}</bdi><p>هذا البريد محفوظ من الإعدادات، ولم يُربط بحساب PayPal عبر هذه الصفحة.</p></aside> }
+    @if (bankOpen()) {
+      <form class="form-panel" [formGroup]="bankForm" (ngSubmit)="saveBank()" aria-labelledby="bank-title"><h2 id="bank-title">بيانات حساب الراجحي</h2><p>البنك: مصرف الراجحي · الدولة: السعودية</p>
+        <label for="bank-holder">اسم صاحب الحساب كما هو لدى البنك <span>*</span></label><input id="bank-holder" formControlName="accountHolder" autocomplete="name" maxlength="160" [attr.aria-invalid]="bankForm.controls.accountHolder.touched && bankForm.controls.accountHolder.invalid" />
+        @if (fieldErrors()['accountHolder']) { <small class="field-error">{{ fieldErrors()['accountHolder'] }}</small> } @else if (bankForm.controls.accountHolder.touched && bankForm.controls.accountHolder.invalid) { <small class="field-error">أدخل اسم صاحب الحساب.</small> }
+        <label for="bank-iban">الآيبان <span>*</span></label><input id="bank-iban" formControlName="iban" dir="ltr" placeholder="SA…" autocomplete="off" maxlength="64" [attr.aria-invalid]="bankForm.controls.iban.touched && bankForm.controls.iban.invalid" />
+        @if (fieldErrors()['iban']) { <small class="field-error">{{ fieldErrors()['iban'] }}</small> } @else if (bankForm.controls.iban.touched && bankForm.controls.iban.invalid) { <small class="field-error">الآيبان مطلوب.</small> }
+        <label for="bank-label">اسم للطريقة <small>(اختياري)</small></label><input id="bank-label" formControlName="label" maxlength="60" placeholder="حسابي الرئيسي" />
+        <p class="info-note">يُحفظ الحساب بحالة غير متحقق منها. التحقق البنكي والتحويل لهذا الحساب غير متاحين حاليًا.</p><div class="actions"><button type="submit" class="primary" [disabled]="busy()">{{ busy() ? 'جارٍ الحفظ…' : 'حفظ الحساب' }}</button><button type="button" [disabled]="busy()" (click)="bankOpen.set(false); bankForm.reset()">إلغاء</button></div>
+      </form>
+    }
+    @if (otpMethod(); as method) { <form class="form-panel" [formGroup]="otpForm" (ngSubmit)="confirmOtp()"><h2>تأكيد تغيير بريد السحب</h2><p>أرسلنا رمزًا إلى {{ otpHint() }}. بعد تأكيده تُطبق حماية تجميد سحب PayPal لمدة 24 ساعة.</p><label for="payout-code">رمز التحقق</label><input id="payout-code" formControlName="code" dir="ltr" inputmode="numeric" autocomplete="one-time-code" maxlength="6" /><div class="actions"><button type="submit" class="primary" [disabled]="busy()">تأكيد البريد</button><button type="button" [disabled]="busy() || !canResend()" (click)="activate(method)">إعادة إرسال الرمز</button><button type="button" [disabled]="busy()" (click)="otpMethod.set(null)">لاحقًا</button></div></form> }
+    <h2 class="section-title">طرقك المضافة</h2>
+    @if (!data.methods.length) { <div class="empty-state"><h3>ابدأ بإضافة طريقة</h3><p>اربط PayPal أو احفظ حساب الراجحي من الخيارات أعلاه.</p></div> }
+    <div class="saved-methods">@for (method of data.methods; track method.id) { <article class="method-card"><div class="method-heading"><strong>{{ method.label }}</strong>@if (method.isDefault) { <span class="badge">الافتراضية</span> }</div><bdi class="account-hint">{{ method.hint }}</bdi><p class="status" [class.connected]="method.status === 'CONNECTED'">{{ status(method) }}</p>
+      @if (method.kind === 'ALRAJHI') { <p class="muted">التحويل البنكي غير متاح حاليًا.</p> }
+      @if (method.status === 'EMAIL_UNCONFIRMED') { <p class="muted">أكّد بريدك داخل PayPal ثم أعد ربط الحساب.</p> }
+      <div class="actions">@if (method.canActivate) { <button type="button" class="primary" [disabled]="busy()" (click)="activate(method)">تأكيده كبريد السحب</button> }@if (method.status === 'CONNECTED' && !method.isDefault) { <button type="button" [disabled]="busy()" (click)="setDefault(method)">تعيين كافتراضية</button> }@if (method.kind === 'ALRAJHI') { <button type="button" [disabled]="busy()" (click)="editBank(method)">تعديل البيانات</button> }<button type="button" class="danger" [disabled]="busy()" (click)="removeTarget.set(method)">{{ method.kind === 'PAYPAL' ? 'فصل الربط' : 'إزالة' }}</button></div>
+    </article> }</div>
+    @if (removeTarget(); as target) { <section class="form-panel confirm-panel" role="alert" aria-labelledby="remove-title"><h2 id="remove-title">{{ target.kind === 'PAYPAL' ? 'فصل ربط PayPal؟' : 'إزالة حساب الراجحي؟' }}</h2><p>{{ target.kind === 'PAYPAL' ? 'سيُفصل الربط، ويبقى بريد السحب المحفوظ ظاهرًا كغير مرتبط. طلبات السحب السابقة لا تتغير.' : 'سيُحذف الحساب البنكي المحفوظ من طرقك.' }}</p><div class="actions"><button type="button" class="danger" [disabled]="busy()" (click)="remove()">تأكيد</button><button type="button" [disabled]="busy()" (click)="removeTarget.set(null)">إلغاء</button></div></section> }
+  }
+</section>
