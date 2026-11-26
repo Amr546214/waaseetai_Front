@@ -161,28 +161,17 @@
       </div>
 
       <div class="wd-payout">
-      <!-- Method (read-only display) -->
+      <!-- Withdrawal method: only VERIFIED accounts (managed in طرق الدفع). PayPal is just the first kind of verified account, not the page's subject. -->
       <div class="wd-field">
         <label class="wd-lbl">طريقة السحب</label>
-        <div class="wd-method-pill">
-          <svg aria-hidden="true"><use href="#wd-paypal"></use></svg>
-          <span>PayPal</span>
-        </div>
-        <div class="wd-field-hint">السحب متاح فقط إلى حساب PayPal موثّق (يُربط من طرق الدفع)</div>
-      </div>
-
-      <!-- PayPal destination (read-only: the saved profile email) -->
-      <div class="wd-field">
-        <label class="wd-lbl">حساب PayPal الموثّق لاستلام الأرباح</label>
         @if (paypalLoading()) {
           <div class="wd-field-hint">جارٍ التحميل...</div>
         } @else if (paypalEmail()) {
-          <div class="wd-method-pill" dir="ltr" data-testid="wd-paypal-email"><span>{{ paypalEmail() }}</span></div>
-          <div class="wd-field-hint">سنرسل مستحقاتك إلى حساب PayPal الموثّق هذا. تديره من <a routerLink="/provider-overview/finance/payment-methods">طرق الدفع</a>.</div>
+          <div class="wd-method-pill" dir="ltr" data-testid="wd-paypal-email"><svg aria-hidden="true"><use href="#wd-paypal"></use></svg><span>PayPal · {{ paypalEmail() }}</span></div>
+          <div class="wd-field-hint">حساب موثّق. تُحوَّل مستحقاتك إليه بعد اعتماد الإدارة، وتديره من <a routerLink="/provider-overview/finance/payment-methods">طرق الدفع</a>.</div>
         } @else {
-          <div class="wd-field-err" id="wdPaypal" tabindex="-1" role="alert" data-testid="wd-paypal-missing">لا يوجد حساب PayPal موثّق. اربط حسابك من <a routerLink="/provider-overview/finance/payment-methods">طرق الدفع</a> لتتمكن من طلب السحب.</div>
+          <div class="wd-field-err" id="wdPaypal" tabindex="-1" role="alert" data-testid="wd-paypal-missing">لا توجد حسابات موثقة حتى الآن. <a routerLink="/provider-overview/finance/payment-methods" class="wd-go-methods" data-testid="wd-go-methods">الذهاب إلى طرق الدفع</a> لإضافة حساب وتوثيقه.</div>
         }
-        <!-- With no PayPal email the persistent red notice above IS the field message (it was repeated here a second time after a rejected click). -->
         @if (formErrors()['paypal']; as err) {
           @if (paypalEmail()) { <div class="wd-field-err" role="alert">{{ err }}</div> }
         }
