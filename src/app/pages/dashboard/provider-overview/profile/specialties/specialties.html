@@ -74,6 +74,16 @@
 				class="px-4 py-2 bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.30)] rounded-full text-xs font-bold text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)] transition-colors shrink-0 whitespace-nowrap">طبّق الاقتراح</button>
 		</div>
 
+		@if (selectedSpecId() && !pickerOpen()) {
+		<div class="state-card mb-4 flex items-center justify-between gap-3" data-testid="chosen-spec-box">
+			<div>
+				<div class="text-xs text-[var(--txt-3)] mb-1">التخصص الرئيسي المختار</div>
+				<div class="text-base font-black text-white" data-testid="chosen-spec-name">{{ selectedSpecName() }}</div>
+			</div>
+			<button type="button" (click)="changeSpec()" data-testid="change-spec"
+				class="px-4 py-2 bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.30)] rounded-full text-xs font-bold text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)] transition-colors shrink-0">تغيير التخصص</button>
+		</div>
+		} @else {
 		<!-- SEARCH -->
 		<div class="relative mb-5">
 			<div class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] pointer-events-none">
@@ -125,6 +135,8 @@
 			<div class="text-sm text-[var(--txt-3)] mb-4">لم نجد تخصصا بهذا الاسم، يمكنك مسح البحث أو اقتراح تخصص جديد
 			</div>
 		</div>
+
+		}
 
 		<!-- SUBSPECIALTIES -->
 		<div *ngIf="selectedSpecId()" class="state-card animate-[ws-fade_0.25s_ease]">
