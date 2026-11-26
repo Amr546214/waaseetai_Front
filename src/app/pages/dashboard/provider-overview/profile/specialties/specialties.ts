@@ -1,3 +1,5 @@
+import { AiNoteComponent } from '../../../../../shared/ai/ai-note.component';
+import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
 import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
@@ -129,7 +131,7 @@ export interface PortfolioReview {
 @Component({
 	selector: 'app-profile-specialties',
 	standalone: true,
-	imports: [CommonModule, FormsModule, SpecialtyStatusComponent, SpecialtyTestComponent, ExamEnvironmentInstructionsComponent],
+	imports: [AiNoteComponent, CommonModule, FormsModule, SpecialtyStatusComponent, SpecialtyTestComponent, ExamEnvironmentInstructionsComponent],
 	templateUrl: './specialties.html',
 	styleUrls: ['./specialties.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
@@ -150,6 +152,7 @@ export class Specialties implements OnInit, OnDestroy {
 	// Hardcoded SVG glyph (no user data). Angular's HTML sanitizer strips <circle>/<path> inside [innerHTML] on an <svg>, which left every category icon blank.
 	private readonly categoryIcon: SafeHtml = this.sanitizer.bypassSecurityTrustHtml('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>');
 	private providerApi = inject(ProviderApiService);
+	private readonly providerProfileService = inject(ProviderProfileService);
 	private host = inject<ElementRef<HTMLElement>>(ElementRef);
 	/** One request at a time for step 1 (selectSpecialty); step 2 is guarded by isSubmittingSamples. */
 	private readonly step1Guard = new SubmitGuard();
@@ -982,6 +985,31 @@ export class Specialties implements OnInit, OnDestroy {
 		this.currentQuestionIdx.set(questions.length - 1);
 	}
 
+	/** the AI reading of each file as it is chosen (model file / proof): PASS shows the note, a refused model file is removed with the reason, an unreadable / unavailable check leaves it to the administration */
+	fileChecks = signal<Record<string, { status: 'scanning' | 'valid' | 'warning' | 'refused'; message: string }>>({});
+	private setFileCheck(key: string, v: { status: 'scanning' | 'valid' | 'warning' | 'refused'; message: string } | null) {
+		this.fileChecks.update(c => { const n = { ...c }; if (v) n[key] = v; else delete n[key]; return n; });
+	}
+	private checkFileWithAi(kind: 'MODEL' | 'PROOF', file: File, key: string, sampleId: string, onRefused?: () => void) {
+		const specialtyName = this.samples().find(s => s.id === sampleId)?.subSpecialty || '';
+		if (!['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'text/plain'].includes(file.type)) { this.setFileCheck(key, { status: 'warning', message: 'هذا النوع من الملفات لا يُقرأ آليًا؛ ستراجعه الإدارة.' }); return; }
+		if (file.size > 2_300_000) { this.setFileCheck(key, { status: 'warning', message: 'حجم الملف أكبر من حد الفحص الآلي؛ ستراجعه الإدارة.' }); return; }
+		this.setFileCheck(key, { status: 'scanning', message: 'جاري قراءة الملف بالذكاء الاصطناعي...' });
+		this.fileToDataUrl(file).then(dataUrl => {
+			this.providerProfileService.checkPortfolioFile({ kind, specialtyName, fileName: file.name, mimeType: file.type, file: dataUrl }).subscribe({
+				next: (res: any) => {
+					const v = res?.data;
+					if (!v) { this.setFileCheck(key, null); return; }
+					const advice = v.recommendationsAr?.length ? ' ' + v.recommendationsAr.join('، ') : '';
+					if (v.verdict === 'PASS') this.setFileCheck(key, { status: 'valid', message: v.summaryAr || 'قرأ الذكاء الاصطناعي الملف وهو مناسب.' });
+					else if (v.verdict === 'FAIL') { this.setFileCheck(key, { status: 'refused', message: (v.summaryAr || 'الملف غير مناسب لهذا التخصص.') + advice + ' ارفع ملفًا آخر.' }); onRefused?.(); }
+					else this.setFileCheck(key, { status: 'warning', message: v.summaryAr || 'تعذّر قراءة الملف آليًا؛ ستراجعه الإدارة.' });
+				},
+				error: () => this.setFileCheck(key, { status: 'warning', message: 'تعذّر الفحص الآلي حاليًا؛ يمكنك المتابعة وستراجع الإدارة الملف.' })
+			});
+		}).catch(() => this.setFileCheck(key, { status: 'warning', message: 'تعذّر قراءة الملف آليًا؛ ستراجعه الإدارة.' }));
+	}
+
 	async onPublicFileSelected(event: Event, sampleId: string) {
 		const input = event.target as HTMLInputElement;
 		if (input.files && input.files.length > 0) {
@@ -997,6 +1025,7 @@ export class Specialties implements OnInit, OnDestroy {
 					previewUrl,
 					isUploading: false
 				});
+				this.checkFileWithAi('MODEL', file, 'm:' + sampleId, sampleId, () => this.removePublicFile(sampleId));
 			} catch {
 				// the file is NOT silently dropped: say why the step stays blocked
 				this.patchSample(sampleId, { isUploading: false });
@@ -1007,6 +1036,7 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 
 	removePublicFile(sampleId: string) {
+		if (this.fileChecks()['m:' + sampleId]?.status !== 'refused') this.setFileCheck('m:' + sampleId, null);
 		this.patchSample(sampleId, {
 			publicFile: null,
 			publicFileName: null,
@@ -1084,6 +1114,7 @@ export class Specialties implements OnInit, OnDestroy {
 						isProcessingProofs: false
 					} : sample)
 				);
+				files.forEach(f => this.checkFileWithAi('PROOF', f, 'p:' + sampleId + ':' + f.name, sampleId));
 			} catch {
 				this.patchSample(sampleId, { isProcessingProofs: false });
 				this.stepError.set('تعذّر معالجة ملف الإثبات. جرّب صورة PNG/JPG أو ملف PDF آخر.');
@@ -1093,6 +1124,8 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 
 	removeProofFile(sampleId: string, proofIndex: number) {
+		const removedName = this.samples().find(s => s.id === sampleId)?.proofFileNames[proofIndex];
+		if (removedName) this.setFileCheck('p:' + sampleId + ':' + removedName, null);
 		this.samples.update(s =>
 			s.map(sample => {
 				if (sample.id !== sampleId) return sample;
