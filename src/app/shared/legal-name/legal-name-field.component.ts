@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, input, output, sign
 import { LegalNameService, LegalNameView } from '../../core/services/legal-name.service';
 import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-name.validator';
 
-/** Private identity-matching name. Every owner saves it directly, explicitly.
- * A legacy pending request is only a draft to recover, never an approval gate. */
+/** Private identity-matching name. Every owner saves it directly: there is no save button, the name is stored when the person leaves the field (or presses Enter)
+ * and it is valid and different from the stored one. A half-typed name is never sent. A legacy pending request is only a draft to recover, never an approval gate. */
 @Component({
 	selector: 'ws-legal-name-field',
 	standalone: true,
@@ -14,12 +14,10 @@ import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-na
 		@if (view(); as v) {
 			<label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-400" for="legal-name-field-input">الاسم الحقيقي (كما في الهوية) <span class="ws-req" aria-hidden="true">*</span></label>
 			@if (!readOnly() && (editing() || v.status === 'MISSING')) {
-				<input id="legal-name-field-input" type="text" maxlength="120" autocomplete="off" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="مثال: عمرو محمود" data-testid="legal-name-field-input" [value]="draft()" [disabled]="saving()" (input)="onInput($event)" [attr.aria-invalid]="problem() ? 'true' : null" />
+				<input id="legal-name-field-input" type="text" maxlength="120" autocomplete="off" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="مثال: عمرو محمود" data-testid="legal-name-field-input" [value]="draft()" [disabled]="saving()" (input)="onInput($event)" (blur)="autoSave()" (keydown.enter)="$event.preventDefault(); autoSave()" [attr.aria-invalid]="problem() ? 'true' : null" />
 				@if (problem(); as pr) { <div class="text-xs text-red-400 mt-1" role="alert" data-testid="legal-name-problem">{{ pr }}</div> }
-				<div class="flex gap-2 mt-2">
-					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-[#04101f] text-sm font-bold" [disabled]="saving() || !!problem() || !draft().trim()" (click)="save()" data-testid="legal-name-save">{{ saving() ? 'جارٍ الحفظ…' : 'حفظ الاسم الحقيقي' }}</button>
-					@if (v.status === 'PROVIDED' && !alwaysEdit()) { <button type="button" class="px-4 py-2 rounded-xl border border-white/20 text-sm" [disabled]="saving()" (click)="cancel()">إلغاء</button> }
-				</div>
+					@if (saving()) { <p class="text-xs text-slate-300 mt-1" role="status" data-testid="legal-name-saving">جارٍ الحفظ…</p> }
+					@if (v.status === 'PROVIDED' && !alwaysEdit()) { <div class="flex gap-2 mt-2"><button type="button" class="px-4 py-2 rounded-xl border border-white/20 text-sm" [disabled]="saving()" (click)="cancel()">إلغاء</button></div> }
 			} @else {
 				<div class="flex items-center gap-3">
 					<span class="text-sm" data-testid="legal-name-value">{{ v.legalName || '—' }}</span>
@@ -53,6 +51,12 @@ export class LegalNameFieldComponent implements OnInit {
 	startEdit(v: LegalNameView) { this.draft.set(v.pendingRequest?.requestedValue ?? v.legalName ?? ''); this.problem.set(null); this.note.set(null); this.editing.set(true); }
 	cancel() { this.editing.set(false); this.problem.set(null); }
 	onInput(e: Event) { const value = (e.target as HTMLInputElement).value; this.draft.set(value); this.problem.set(legalNameProblem(value)); this.note.set(null); }
+	/** stores the name when the field is left: only a complete, valid name that differs from the stored one */
+	autoSave() {
+		const v = this.view(); const value = cleanLegalName(this.draft());
+		if (!v || this.saving() || !value || legalNameProblem(value) || value === cleanLegalName(v.legalName)) return;
+		this.save();
+	}
 	save() {
 		if (this.saving()) return;
 		const value = cleanLegalName(this.draft()); const p = legalNameProblem(value);
