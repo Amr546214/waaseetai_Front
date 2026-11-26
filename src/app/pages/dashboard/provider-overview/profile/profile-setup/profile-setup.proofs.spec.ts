@@ -56,6 +56,41 @@ describe('provider setup step 5: proof of ownership is required', () => {
   const next = () => { c.goToStep(6); render(); };
   const setState = (key: string, status: 'uploading' | 'uploaded' | 'error') => (c as any).setUploadState(key, { status, progress: 0, name: 'f' });
 
+  it('model + proof both uploaded (model AI check unavailable = warning, proof read = valid): Next moves to the review', () => {
+    set({ review: 'r-url', reviewDisplayName: 'r.pdf', proofs: ['p-url'], proofDisplayNames: ['p.pdf'] });
+    setState(`portfolio-review-${SPEC}-0`, 'uploaded'); setState(`portfolio-proof-${SPEC}-0-0`, 'uploaded');
+    c.portfolioChecks.set({ [`review-${SPEC}-0`]: { status: 'warning', message: 'تعذّر الفحص' }, [`proof-${SPEC}-0-0`]: { status: 'valid', message: 'ok' } });
+    next();
+    expect(c.currentStep()).toBe(6);
+  });
+
+  it('a link works as the model AND as the proof (no file, no AI reading): Next moves to the review', () => {
+    set({});
+    c.addPortfolioReviewLink(SPEC, 0, 'https://github.com/user/repo');
+    c.addPortfolioProofLink(SPEC, 0, 'https://github.com/user/repo/blob/main/README.md');
+    next();
+    expect(c.currentStep()).toBe(6);
+    const sent = (c as any).sanitizePortfolioForPayload(c.portfolioItems());
+    expect(sent[SPEC][0].review).toBe('https://github.com/user/repo'); expect(sent[SPEC][0].proofs).toEqual(['https://github.com/user/repo/blob/main/README.md']);
+  });
+
+  it('a link next to a file works too (screenshot as model, link as proof), and unsafe links are refused with a message under the slot', () => {
+    set({ review: 'r-url', reviewDisplayName: 'shot.png' });
+    setState(`portfolio-review-${SPEC}-0`, 'uploaded');
+    c.addPortfolioProofLink(SPEC, 0, 'http://github.com/x'); render();
+    expect(text('pf-proof-error')).toContain('https://');
+    expect(c.portfolioItems()[SPEC][0].proofs).toEqual([]);
+    c.addPortfolioProofLink(SPEC, 0, 'https://github.com/user/repo'); next();
+    expect(c.currentStep()).toBe(6);
+  });
+
+  it('the Next button waits while an AI reading runs and the label says so', () => {
+    set({ review: 'r-url', reviewDisplayName: 'r.pdf', proofs: ['p-url'], proofDisplayNames: ['p.pdf'] });
+    c.portfolioChecks.set({ [`proof-${SPEC}-0-0`]: { status: 'scanning', message: '...' } }); render();
+    const btn = el().querySelector('[data-testid="portfolio-next"]') as HTMLButtonElement;
+    expect(btn.disabled).toBe(true); expect(btn.textContent).toContain('جاري الفحص');
+  });
+
   it('model file but NO proof: the step is refused with the message under the proof slot, the slot is red-bordered and aria-invalid', () => {
     set({ review: 'r-url', reviewDisplayName: 'r.pdf' });
     next();

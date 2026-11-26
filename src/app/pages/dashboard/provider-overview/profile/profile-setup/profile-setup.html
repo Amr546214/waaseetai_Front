@@ -720,6 +720,10 @@
                             <span>ارفع نموذج العمل</span>
                           </label>
                         }
+                        <div class="pw-link-row" style="display:flex;gap:6px;margin-top:6px">
+                          <input #reviewLink type="url" dir="ltr" class="f-inp" style="flex:1" placeholder="أو الصق رابطًا (GitHub أو معرض أعمال)" aria-label="رابط نموذج العمل" data-testid="pf-review-link" (keydown.enter)="$event.preventDefault(); addPortfolioReviewLink(spec, itemIdx, reviewLink.value); reviewLink.value=''">
+                          <button type="button" class="pw-replace-btn" data-testid="pf-review-link-add" (click)="addPortfolioReviewLink(spec, itemIdx, reviewLink.value); reviewLink.value=''">إضافة رابط</button>
+                        </div>
                         @if (portfolioChecks()['review-' + spec + '-' + itemIdx]; as chk) {
                           <ws-ai-note data-testid="pf-ai-check-review" [message]="chk.message" [state]="chk.status" />
                         }
@@ -753,6 +757,10 @@
                           <input type="file" accept="image/*,.pdf,.zip" multiple style="display:none" (change)="onPortfolioProofsChange($event, spec, itemIdx)">
                           <svg data-ws-icon="i-plus" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة وثيقة أخرى
                         </label>
+                        <div class="pw-link-row" style="display:flex;gap:6px;margin-top:6px">
+                          <input #proofLink type="url" dir="ltr" class="f-inp" style="flex:1" placeholder="أو الصق رابطًا يثبت ملكيتك للعمل" aria-label="رابط إثبات الملكية" data-testid="pf-proof-link" (keydown.enter)="$event.preventDefault(); addPortfolioProofLink(spec, itemIdx, proofLink.value); proofLink.value=''">
+                          <button type="button" class="pw-replace-btn" data-testid="pf-proof-link-add" (click)="addPortfolioProofLink(spec, itemIdx, proofLink.value); proofLink.value=''">إضافة رابط</button>
+                        </div>
                         @if (fileErr('pf-proof-' + spec + '-' + itemIdx); as e) { <div class="f-err" id="err-pf-proof-{{ specIdx }}-{{ itemIdx }}" data-testid="pf-proof-error" role="alert">{{ e }}</div> }
                       </div>
                     </div>
@@ -780,7 +788,7 @@
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(4)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 5 من 7</span>
-          <button type="button" class="btn-wz-next" (click)="goToStep(6)" [disabled]="isUploading()">{{ isUploading() ? 'جاري الرفع...' : 'التالي' }}<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
+          <button type="button" class="btn-wz-next" (click)="goToStep(6)" [disabled]="isUploading() || portfolioScanning()" data-testid="portfolio-next">{{ isUploading() ? 'جاري الرفع...' : portfolioScanning() ? 'جاري الفحص...' : 'التالي' }}<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
         </div>
       </div>
 
