@@ -1,3 +1,4 @@
+import { SkillsCatalogService } from '../../../../../core/services/skills-catalog.service';
 import { AiNoteComponent } from '../../../../../shared/ai/ai-note.component';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
@@ -5,7 +6,7 @@ import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-
 import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AssistantExamState } from '../../../../../core/store/assistant-exam-state.service';
-import { Component, ChangeDetectionStrategy, ElementRef, signal, computed, effect, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, signal, computed, effect, untracked, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -51,6 +52,9 @@ export interface WorkSampleForm {
 	isProcessingProofs?: boolean;
 	previewUrl?: string | null;
 	publicFileType?: string | null;
+	/** an https link given instead of (or next to) the model file / the proof files */
+	publicLink?: string;
+	proofLinks?: string[];
 }
 
 export interface AiEvaluationFeedback {
@@ -152,6 +156,7 @@ export class Specialties implements OnInit, OnDestroy {
 	// Hardcoded SVG glyph (no user data). Angular's HTML sanitizer strips <circle>/<path> inside [innerHTML] on an <svg>, which left every category icon blank.
 	private readonly categoryIcon: SafeHtml = this.sanitizer.bypassSecurityTrustHtml('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>');
 	private providerApi = inject(ProviderApiService);
+	private readonly skillsCatalog = inject(SkillsCatalogService);
 	private readonly providerProfileService = inject(ProviderProfileService);
 	private host = inject<ElementRef<HTMLElement>>(ElementRef);
 	/** One request at a time for step 1 (selectSpecialty); step 2 is guarded by isSubmittingSamples. */
@@ -647,8 +652,8 @@ export class Specialties implements OnInit, OnDestroy {
 			if (s.title.trim().length < 3) problems.push({ field: `sample-title-${s.id}`, message: `«${label}»: عنوان النموذج 3 أحرف على الأقل.` });
 			if ((s.description || '').trim().length < 20) { const d = this.host.nativeElement.querySelector<HTMLElement>(`#sample-desc-${s.id}`); descriptionEl ??= d; }
 			if (s.technologies.length === 0 && !this.isTechOptional(s.subSpecialty)) problems.push({ field: `sample-tech-${s.id}`, message: `«${label}»: أضف تقنية واحدة على الأقل.` });
-			if (s.publicFile === null) problems.push({ field: `sample-public-${s.id}`, message: `«${label}»: ارفع الملف العام للنموذج.` });
-			if (s.proofFiles.length === 0) problems.push({ field: `sample-proof-${s.id}`, message: `«${label}»: ارفع ملف إثبات واحداً على الأقل.` });
+			if (!this.hasModel(s)) problems.push({ field: `sample-public-${s.id}`, message: `«${label}»: ارفع الملف العام للنموذج أو أضف رابطًا.` });
+			if (!this.hasProof(s)) problems.push({ field: `sample-proof-${s.id}`, message: `«${label}»: ارفع ملف إثبات أو أضف رابطًا واحدًا على الأقل.` });
 		}
 		return { problems, descriptionEl };
 	}
@@ -751,7 +756,10 @@ export class Specialties implements OnInit, OnDestroy {
 				formData.append(`subSpecialty_${i}`, s.subSpecialty);
 				if (s.publicFile) {
 					formData.append(`publicSample_${i}`, s.publicFile);
+				} else if (s.publicLink) {
+					formData.append(`sampleLink_${i}`, s.publicLink);
 				}
+				if (s.proofLinks?.length) formData.append(`proofLinks_${i}`, JSON.stringify(s.proofLinks));
 				s.proofFiles.forEach((p) => {
 					formData.append(`proofFiles_${i}`, p);
 				});
@@ -824,7 +832,7 @@ export class Specialties implements OnInit, OnDestroy {
 			s.title.trim().length >= 3 &&
 			(s.description || '').trim().length >= 20 &&
 			(s.technologies.length > 0 || this.isTechOptional(s.subSpecialty)) &&
-			s.publicFile !== null && s.proofFiles.length > 0 && !s.isUploading && !s.isProcessingProofs
+			this.hasModel(s) && this.hasProof(s) && !s.isUploading && !s.isProcessingProofs
 		);
 	});
 
@@ -854,7 +862,7 @@ export class Specialties implements OnInit, OnDestroy {
 			if (s.title.trim().length < 3) return `«${label}»: عنوان النموذج 3 أحرف على الأقل.`;
 			if ((s.description || '').trim().length < 20) return `«${label}»: الوصف 20 حرفاً على الأقل.`;
 			if (s.technologies.length === 0 && !this.isTechOptional(s.subSpecialty)) return `«${label}»: أضف تقنية واحدة على الأقل.`;
-			if (s.publicFile === null) return `«${label}»: ارفع الملف العام للنموذج.`;
+			if (!this.hasModel(s)) return `«${label}»: ارفع الملف العام للنموذج أو أضف رابطًا.`;
 			if (s.proofFiles.length === 0) return `«${label}»: ارفع ملف إثبات واحداً على الأقل.`;
 		}
 		return null;
@@ -895,6 +903,80 @@ export class Specialties implements OnInit, OnDestroy {
 			proofFiles: [],
 			proofFileNames: []
 		}]);
+	}
+
+	/** a model is a file OR a link; a proof is a file OR a link */
+	hasModel(s: WorkSampleForm): boolean { return s.publicFile !== null || !!s.publicLink; }
+	hasProof(s: WorkSampleForm): boolean { return s.proofFiles.length > 0 || (s.proofLinks?.length ?? 0) > 0; }
+
+	/** https only, no credentials, a real host, at most 500 characters (the backend applies the same rule; it never fetches the link itself) */
+	private linkProblem(raw: string): string | null {
+		const v = raw.trim();
+		if (!v) return 'الصق الرابط أولًا';
+		if (v.length > 500) return 'الرابط طويل جدًا (الحد 500 حرف)';
+		try { const u = new URL(v); if (u.protocol !== 'https:' || u.username || u.password || !u.hostname.includes('.') || /\s/.test(v)) return 'أدخل رابطًا صالحًا يبدأ بـ https://'; return null; } catch { return 'أدخل رابطًا صالحًا يبدأ بـ https://'; }
+	}
+	linkErrors = signal<Record<string, string>>({});
+	private setLinkError(key: string, message: string | null) { this.linkErrors.update(e => { const n = { ...e }; if (message) n[key] = message; else delete n[key]; return n; }); }
+	private checkLinkWithAi(kind: 'MODEL' | 'PROOF', url: string, key: string, sampleId: string, onRefused?: () => void) {
+		const specialtyName = this.samples().find(s => s.id === sampleId)?.subSpecialty || '';
+		this.setFileCheck(key, { status: 'scanning', message: 'جاري قراءة الرابط بالذكاء الاصطناعي...' });
+		this.providerProfileService.checkPortfolioFile({ kind, specialtyName, fileName: url.slice(0, 120), mimeType: 'text/uri-list', file: url }).subscribe({
+			next: (res: any) => {
+				const v = res?.data;
+				if (!v) { this.setFileCheck(key, null); return; }
+				if (v.verdict === 'PASS') this.setFileCheck(key, { status: 'valid', message: v.summaryAr || 'قرأ الذكاء الاصطناعي الرابط وهو مناسب.' });
+				else if (v.verdict === 'FAIL') { this.setFileCheck(key, { status: 'refused', message: (v.summaryAr || 'الرابط غير مناسب لهذا التخصص.') + ' أضف رابطًا آخر.' }); onRefused?.(); }
+				else this.setFileCheck(key, { status: 'warning', message: v.summaryAr || 'تعذّرت قراءة الرابط آليًا؛ ستفتحه الإدارة وتراجعه.' });
+			},
+			error: () => this.setFileCheck(key, { status: 'warning', message: 'تعذّر الفحص الآلي حاليًا؛ يمكنك المتابعة وستفتح الإدارة الرابط.' })
+		});
+	}
+	addModelLink(sampleId: string, raw: string) {
+		const problem = this.linkProblem(raw); const key = 'ml:' + sampleId;
+		if (problem) { this.setLinkError(key, problem); return; }
+		const url = raw.trim(); this.setLinkError(key, null);
+		this.patchSample(sampleId, { publicLink: url });
+		this.checkLinkWithAi('MODEL', url, 'm:' + sampleId, sampleId, () => this.removeModelLink(sampleId, true));
+	}
+	removeModelLink(sampleId: string, keepNote = false) {
+		if (!keepNote) this.setFileCheck('m:' + sampleId, null);
+		this.patchSample(sampleId, { publicLink: undefined });
+	}
+	addProofLink(sampleId: string, raw: string) {
+		const problem = this.linkProblem(raw); const key = 'pl:' + sampleId;
+		if (problem) { this.setLinkError(key, problem); return; }
+		const url = raw.trim(); const sample = this.samples().find(s => s.id === sampleId);
+		if (sample?.proofLinks?.includes(url) || (sample?.proofLinks?.length ?? 0) >= 5) { this.setLinkError(key, 'أُضيف هذا الرابط بالفعل أو بلغت الحد (5 روابط)'); return; }
+		this.setLinkError(key, null);
+		this.patchSample(sampleId, { proofLinks: [...(sample?.proofLinks ?? []), url] });
+		this.checkLinkWithAi('PROOF', url, 'l:' + sampleId + ':' + url, sampleId);
+	}
+	removeProofLink(sampleId: string, url: string) {
+		this.setFileCheck('l:' + sampleId + ':' + url, null);
+		const sample = this.samples().find(s => s.id === sampleId);
+		this.patchSample(sampleId, { proofLinks: (sample?.proofLinks ?? []).filter(u => u !== url) });
+	}
+
+	/** skill names of the chosen main specialty (the platform catalog): the tools box suggests from them while you type */
+	skillPool = signal<string[]>([]);
+	private readonly skillPoolLoader = effect(() => {
+		const id = this.selectedSpecId();
+		if (!id || id === 'other') { this.skillPool.set([]); return; }
+		untracked(() => this.skillsCatalog.getCatalog(id).subscribe({ next: r => this.skillPool.set(r?.data?.skills ?? []), error: () => this.skillPool.set([]) }));
+	});
+	techFocus = signal<string | null>(null);
+	techSuggestions(sample: WorkSampleForm): string[] {
+		const parts = (sample.technologiesInput || '').split(/[,،]/);
+		const token = (parts[parts.length - 1] || '').trim().toLowerCase();
+		if (!token) return [];
+		const chosen = new Set(sample.technologies.map(x => x.toLowerCase()));
+		return this.skillPool().filter(s => s.toLowerCase().includes(token) && !chosen.has(s.toLowerCase())).slice(0, 8);
+	}
+	pickTechnology(sampleId: string, skill: string) {
+		const sample = this.samples().find(s => s.id === sampleId); if (!sample) return;
+		const parts = (sample.technologiesInput || '').split(/[,،]/); parts[parts.length - 1] = ' ' + skill;
+		this.updateTechnologies(sampleId, parts.map(p => p.trim()).filter(Boolean).join(', ') + ', ');
 	}
 
 	updateTechnologies(sampleId: string, value: string) {

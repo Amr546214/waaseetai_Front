@@ -305,9 +305,18 @@
 									<label class="flex flex-col gap-1.5">
 										<span class="text-[length:var(--font-size-small)] font-black sample-card-label">الأدوات والتقنيات <span *ngIf="!isTechOptional(sample.subSpecialty)" class="ws-req" aria-hidden="true">*</span><span *ngIf="isTechOptional(sample.subSpecialty)"> (اختياري)</span></span>
 										<input type="text" [attr.aria-required]="!isTechOptional(sample.subSpecialty) ? 'true' : null" [attr.id]="'sample-tech-' + sample.id" name="sampleTechnologies" [value]="sample.technologiesInput"
-											(input)="updateTechnologies(sample.id, $any($event.target).value)"
+											(input)="updateTechnologies(sample.id, $any($event.target).value)" (focus)="techFocus.set(sample.id)" (blur)="techFocus.set(null)"
+											autocomplete="off" role="combobox" [attr.aria-expanded]="techFocus() === sample.id && techSuggestions(sample).length > 0"
 											placeholder="أضف الأدوات أو التقنيات أو المنهجيات المستخدمة فعلياً"
 											class="sample-meta-input" />
+										@if (techFocus() === sample.id && techSuggestions(sample).length > 0) {
+										<div role="listbox" data-testid="tech-suggestions" class="flex flex-wrap gap-1.5 p-2 rounded-xl border border-[rgba(43,212,199,.25)] bg-[rgba(8,14,34,.95)]">
+											@for (skill of techSuggestions(sample); track skill) {
+											<button type="button" role="option" (mousedown)="$event.preventDefault(); pickTechnology(sample.id, skill)" data-testid="tech-suggestion"
+												class="px-2.5 py-1 rounded-full bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.3)] text-[length:var(--font-size-small)] font-bold text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)]">{{ skill }}</button>
+											}
+										</div>
+										}
 										<span class="text-[length:var(--font-size-caption)] text-[var(--txt-3)]">افصل بين الأدوات أو التقنيات بفاصلة</span>
 									</label>
 									<label class="md:col-span-2 flex flex-col gap-1.5">
@@ -388,6 +397,20 @@
 											(change)="onPublicFileSelected($event, sample.id)">
 									</label>
 									@if (fileChecks()['m:' + sample.id]; as chk) { <ws-ai-note data-testid="sample-ai-check-model" [message]="chk.message" [state]="chk.status" /> }
+									<div class="flex flex-col gap-1.5" data-testid="model-link-box">
+										@if (sample.publicLink) {
+										<div class="flex items-center gap-2 px-3 py-2 rounded-xl border border-[rgba(43,212,199,.3)] bg-[rgba(43,212,199,.06)]">
+											<span class="text-xs font-bold flex-1 truncate" dir="ltr">{{ sample.publicLink }}</span>
+											<button type="button" (click)="removeModelLink(sample.id)" aria-label="حذف الرابط" class="w-6 h-6 rounded-md text-[#FF6B6B] hover:bg-red-500/15">&times;</button>
+										</div>
+										}
+										<div class="flex gap-1.5">
+											<input #mlink type="url" dir="ltr" data-testid="model-link-input" placeholder="أو الصق رابط النموذج (GitHub أو معرض أعمال)" aria-label="رابط النموذج" class="sample-meta-input flex-1"
+												(keydown.enter)="$event.preventDefault(); addModelLink(sample.id, mlink.value); mlink.value=''" />
+											<button type="button" data-testid="model-link-add" (click)="addModelLink(sample.id, mlink.value); mlink.value=''" class="px-3 rounded-xl border border-[rgba(43,212,199,.4)] text-[#2BD4C7] text-xs font-extrabold">إضافة رابط</button>
+										</div>
+										@if (linkErrors()['ml:' + sample.id]; as e) { <span class="text-[length:var(--font-size-small)] text-[#FF6B6B]" role="alert">{{ e }}</span> }
+									</div>
 								</div>
 
 								<div [attr.id]="'sample-proof-' + sample.id" role="group" tabindex="-1" aria-label="وثائق إثبات الملكية" class="p-4.5 bg-[rgba(43,127,255,.03)] flex flex-col justify-between">
@@ -402,11 +425,11 @@
 												وثائق الإثبات · للمراجعة فقط <span class="ws-req" aria-hidden="true">*</span>
 											</div>
 
-											<span *ngIf="sample.proofFileNames.length === 0"
+											<span *ngIf="!hasProof(sample)"
 												class="px-2 py-0.5 bg-[rgba(255,180,0,.15)] border border-[rgba(255,180,0,.35)] rounded-full text-[length:var(--font-size-caption)] text-[#FFB400] font-black flex items-center gap-1 animate-pulse">
 												⚠️ يحتاج وثيقة إثبات
 											</span>
-											<span *ngIf="sample.proofFileNames.length > 0"
+											<span *ngIf="hasProof(sample)"
 												class="px-2 py-0.5 bg-[rgba(43,212,199,.15)] border border-[rgba(43,212,199,.3)] rounded-full text-[length:var(--font-size-caption)] text-[#2BD4C7] font-extrabold">
 												مكتمل الشرط
 											</span>
@@ -446,6 +469,23 @@
 										<input type="file" class="hidden" multiple
 											(change)="onProofFilesSelected($event, sample.id)">
 									</label>
+									<div class="flex flex-col gap-1.5 mt-2" data-testid="proof-link-box">
+										@for (url of sample.proofLinks ?? []; track url) {
+										<div class="flex flex-col gap-2">
+											<div class="flex items-center gap-2 px-3 py-2 rounded-xl border border-[rgba(43,127,255,.25)] bg-[rgba(43,127,255,.1)]">
+												<span class="text-xs font-bold flex-1 truncate" dir="ltr">{{ url }}</span>
+												<button type="button" (click)="removeProofLink(sample.id, url)" aria-label="حذف الرابط" class="w-5 h-5 rounded-md text-[var(--txt-3)] hover:text-white hover:bg-red-500/20">&times;</button>
+											</div>
+											@if (fileChecks()['l:' + sample.id + ':' + url]; as chk) { <ws-ai-note data-testid="sample-ai-check-proof-link" [message]="chk.message" [state]="chk.status" /> }
+										</div>
+										}
+										<div class="flex gap-1.5">
+											<input #plink type="url" dir="ltr" data-testid="proof-link-input" placeholder="أو الصق رابطًا يثبت ملكيتك للعمل" aria-label="رابط إثبات الملكية" class="sample-meta-input flex-1"
+												(keydown.enter)="$event.preventDefault(); addProofLink(sample.id, plink.value); plink.value=''" />
+											<button type="button" data-testid="proof-link-add" (click)="addProofLink(sample.id, plink.value); plink.value=''" class="px-3 rounded-xl border border-[rgba(43,127,255,.4)] text-[#5DA0FF] text-xs font-extrabold">إضافة رابط</button>
+										</div>
+										@if (linkErrors()['pl:' + sample.id]; as e) { <span class="text-[length:var(--font-size-small)] text-[#FF6B6B]" role="alert">{{ e }}</span> }
+									</div>
 								</div>
 							</div>
 
