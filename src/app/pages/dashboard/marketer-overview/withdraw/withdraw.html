@@ -44,20 +44,20 @@
         }
       </div>
       <div style="margin-bottom:14px">
-        <label style="font-size:var(--font-size-small);font-weight:700;display:block;margin-bottom:6px" class="txt-slate">حساب PayPal الموثّق</label>
+        <label style="font-size:var(--font-size-small);font-weight:700;display:block;margin-bottom:6px" class="txt-slate">طريقة السحب</label>
         @if (hasPaypal()) {
         <div data-testid="paypal-destination" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:var(--font-size-label)" class="txt-white">
-          <span dir="ltr">{{ paypalEmail() }}</span>
+          <span dir="ltr">PayPal · {{ paypalEmail() }}</span> <span class="txt-muted" style="font-size:var(--font-size-small)">· حساب موثّق</span>
         </div>
         } @else {
         <div data-testid="paypal-none" style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.28);border-radius:10px;font-size:var(--font-size-small)" class="txt-slate">
-          لا يوجد حساب PayPal موثّق. <a routerLink="/marketer-overview/finance/payment-methods" style="font-weight:700" class="txt-teal">اربط حسابك من طرق الدفع</a>
+          لا توجد حسابات موثقة حتى الآن. <a routerLink="/marketer-overview/finance/payment-methods" style="font-weight:700" class="txt-teal" data-testid="go-methods">الذهاب إلى طرق الدفع</a>
         </div>
         }
       </div>
       <div class="ws-note ws-note--warn" style="margin-bottom:16px" data-testid="withdraw-note">
         <svg aria-hidden="true"><use href="#i-clock"></use></svg>
-        <span style="font-size:var(--font-size-small)" class="txt-slate">كل طلب سحب تراجعه الإدارة قبل التحويل إلى حساب PayPal الموثّق، وتتابع حالته من سجل السحوبات أدناه. المبلغ المطلوب يُحجز من رصيدك حتى يُدفع أو يُرفض.</span>
+        <span style="font-size:var(--font-size-small)" class="txt-slate">كل طلب سحب تراجعه الإدارة قبل التحويل إلى حسابك الموثّق، وتتابع حالته من سجل السحوبات أدناه. المبلغ المطلوب يُحجز من رصيدك حتى يُدفع أو يُرفض.</span>
       </div>
       @if (blockedReason(); as why) {
       <div class="ws-note ws-note--warn" style="margin-bottom:16px" data-testid="withdraw-blocked" role="status">
