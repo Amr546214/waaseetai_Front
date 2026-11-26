@@ -1533,6 +1533,36 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		}
 	}
 
+	/** a link (a GitHub repository, a portfolio page...) is accepted instead of a file: https only; the administration opens it during the review (nothing is fetched or AI-read here) */
+	private linkProblem(raw: string): string | null {
+		const v = raw.trim();
+		if (!v) return 'الصق الرابط أولًا';
+		if (v.length > 500) return 'الرابط طويل جدًا (الحد 500 حرف)';
+		try { const u = new URL(v); if (u.protocol !== 'https:' || u.username || u.password || !u.hostname.includes('.') || /\s/.test(v)) return 'أدخل رابطًا صالحًا يبدأ بـ https://'; return null; } catch { return 'أدخل رابطًا صالحًا يبدأ بـ https://'; }
+	}
+	addPortfolioReviewLink(spec: string, idx: number, raw: string) {
+		const problem = this.linkProblem(raw); const errKey = pfReviewKey(spec, idx);
+		if (problem) { this.setFileError(errKey, problem); return; }
+		const url = raw.trim();
+		this.clearFileError(errKey, pfSpecKey(spec));
+		this.setUploadState(`portfolio-review-${spec}-${idx}`, { status: 'uploaded', progress: 100, name: url });
+		this.setPortfolioCheck(`review-${spec}-${idx}`, { status: 'warning', message: 'رابط: ستفتحه الإدارة وتراجعه.' });
+		this.setPortfolioCheck(`refused-${spec}-${idx}`, null);
+		this.updatePortfolioItem(spec, idx, item => ({ ...item, review: url, reviewDisplayName: url }));
+	}
+	addPortfolioProofLink(spec: string, idx: number, raw: string) {
+		const problem = this.linkProblem(raw); const errKey = pfProofKey(spec, idx);
+		if (problem) { this.setFileError(errKey, problem); return; }
+		const url = raw.trim();
+		this.clearFileError(errKey, pfSpecKey(spec));
+		const at = this.portfolioItems()[spec][idx].proofs.length;
+		this.updatePortfolioItem(spec, idx, item => ({ ...item, proofs: [...item.proofs, url], proofDisplayNames: [...item.proofDisplayNames, url] }));
+		this.setUploadState(`portfolio-proof-${spec}-${idx}-${at}`, { status: 'uploaded', progress: 100, name: url });
+		this.setPortfolioCheck(`proof-${spec}-${idx}-${at}`, { status: 'warning', message: 'رابط: ستفتحه الإدارة وتراجعه.' });
+	}
+	/** an AI reading is still running: the step cannot be left until it ends (it never blocks by its result: an unavailable check leaves the file to the human review) */
+	readonly portfolioScanning = computed(() => Object.values(this.portfolioChecks()).some(c => c.status === 'scanning'));
+
 	removePortfolioProof(spec: string, itemIdx: number, proofIdx: number) {
 		const item = this.portfolioItems()[spec]?.[itemIdx];
 		if (!item) return;
