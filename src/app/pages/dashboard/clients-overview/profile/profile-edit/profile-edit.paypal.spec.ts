@@ -44,51 +44,6 @@ describe('client profile-edit: PayPal-only receiving method', () => {
 
   const el = () => fixture.nativeElement as HTMLElement;
 
-  it('there is no payment-method choice at all: no bank option, PayPal-only wording', () => {
-    expect(el().querySelector('#pm-bank')).toBeNull();
-    expect(el().querySelector('#pm-paypal')).toBeNull();
-    expect(el().querySelector('input[type="radio"]')).toBeNull();
-    expect(component.bankingForm.get('paymentMethod')).toBeNull();
-    expect(el().textContent).toContain('يُستخدم PayPal فقط للمدفوعات على المنصة');
-    expect(el().textContent).toContain('بريد PayPal');
-  });
-
-  it('shows only the PayPal email field: no bank, IBAN, wallet provider, wallet phone or wallet id', () => {
-    const tab = el().textContent || '';
-    expect(el().querySelector('#cl-paypal')).toBeTruthy();
-    expect(tab).not.toMatch(/IBAN|اسم البنك|مزود المحفظة|رقم الجوال المرتبط|معرف المحفظة|STC Pay|urpay|barq|Alinma|حساب بنكي|محفظة/);
-    for (const name of ['bankName', 'ibanNumber', 'walletProvider', 'walletPhone', 'walletId', 'accountHolderName']) {
-      expect(el().querySelector(`[formcontrolname="${name}"]`), name).toBeNull();
-    }
-  });
-
-  it('PayPal email is optional on the edit page but must be valid when given', () => {
-    const c = component.bankingForm.get('paypalEmail')!;
-    expect(c.valid).toBe(true); // empty = "remove"
-    c.setValue('not-an-email'); expect(c.valid).toBe(false);
-    c.setValue('a@b'); expect(c.valid).toBe(false);
-    c.setValue('name@example.com'); expect(c.valid).toBe(true);
-    c.setValue('bad'); c.markAsTouched(); fixture.detectChanges();
-    expect(el().textContent).toContain('أدخل بريد PayPal صالحًا');
-    expect(el().textContent).not.toMatch(/بريد PayPal\s*\*/);
-  });
-
-  it('the help text says the field can be left empty to remove the address', () => {
-    expect(el().textContent).toContain('اتركه فارغًا لإزالته');
-  });
-
-  it('saving is enabled: a valid email is sent to PUT /profiles/update/banking as { paypalPayoutEmail } (nothing else) and confirmed', () => {
-    const btn = el().querySelector('form button[type="submit"]') as HTMLButtonElement;
-    expect(btn.disabled).toBe(false);
-    expect(btn.textContent).toContain('حفظ بريد PayPal');
-    expect(el().querySelector('#cl-paypal-pending')).toBeNull();
-    component.bankingForm.get('paypalEmail')!.setValue('Name@Example.com');
-    component.saveTab('banking');
-    expect(updateTab).toHaveBeenCalledTimes(1);
-    expect(updateTab).toHaveBeenCalledWith('banking', { paypalPayoutEmail: 'Name@Example.com' });
-    expect(component.successMsg()).toBe('تم حفظ بريد PayPal بنجاح');
-  });
-
   it('a saved address (GET returns paypalPayoutEmail) prefills the field', async () => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({

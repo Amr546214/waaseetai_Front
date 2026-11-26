@@ -48,7 +48,7 @@
 		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'commissions'"
 			(click)="setActiveTab('commissions')" role="tab">بيانات العمولات</button>
 		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'banking'"
-			(click)="setActiveTab('banking')" role="tab">بريد PayPal</button>
+			(click)="setActiveTab('banking')" role="tab">طرق الدفع</button>
 		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'security'"
 			(click)="setActiveTab('security')" role="tab">الامان والتنبيهات</button>
 	</div>
@@ -419,31 +419,16 @@
 	<!-- بريد PayPal -->
 	@if (activeTab() === 'banking') {
 	<div class="prof-tab-panel active" role="tabpanel">
-			<div class="form-card" [formGroup]="paypalForm">
+		<div class="form-card">
 			<div class="form-card-hdr">
-				<div class="form-card-ico"><svg aria-hidden="true">
-						<use href="#i-wallet"></use>
-					</svg></div>
+				<div class="form-card-ico"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div>
 				<div>
-					<div class="form-card-title">بريد PayPal</div>
-					<div class="form-card-sub">يُستخدم PayPal فقط للمدفوعات على المنصة، وإليه تُحوَّل أرباحك عند السحب</div>
+					<div class="form-card-title">طرق الدفع والسحب</div>
+					<div class="form-card-sub">تُدار من تاب «طرق الدفع» في المالية</div>
 				</div>
 			</div>
-			<div class="form-grid form-col-2">
-				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="afpp-email">بريد PayPal</label>
-					<input type="email" id="afpp-email" class="inp-field" placeholder="name@example.com" dir="ltr"
-								formControlName="paypalPayoutEmail" autocomplete="email" inputmode="email" spellcheck="false"
-								[attr.aria-invalid]="paypalForm.get('paypalPayoutEmail')?.invalid && paypalForm.get('paypalPayoutEmail')?.touched">
-						<span class="inp-hint" data-testid="paypal-hint">لا يمكن سحب الأرباح قبل إضافة بريد PayPal. اتركه فارغًا لإزالته.</span>
-						<ws-field-error [control]="paypalForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
-				</div>
-			</div>
-			<ws-form-summary [items]="missing()" />
-				@if (tabNotice(); as notice) {
-				<div class="field-error" role="alert" data-testid="tab-notice" style="font-size:var(--font-size-small);margin:8px 0">{{ notice }}</div>
-				}
-				<div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()"
-						(click)="savePaypal()">{{ savingPaypal() ? 'جارٍ الحفظ...' : 'حفظ بريد PayPal' }}</button></div>
+			<p class="txt-muted" style="line-height:1.9" data-testid="payment-methods-pointer">لا تُكتب بيانات الدفع هنا. أضف حساب الاستلام ووثّقه من «طرق الدفع»، والسحب متاح فقط إلى الحسابات الموثقة.</p>
+			<div class="actions-row"><a class="btn-primary" routerLink="/marketer-overview/finance/payment-methods" data-testid="go-payment-methods">الذهاب إلى طرق الدفع</a></div>
 		</div>
 	</div>
 	}

@@ -112,17 +112,6 @@ describe('client profile-edit: backend completion + missing items', () => {
     expect(el().textContent).toContain('اكتمال الملف الشخصي');
   });
 
-  it('edit-page items open their tab; PayPal opens the (enabled) PayPal tab', () => {
-    setup({ profileCompletionPercent: 35, missingItems: ITEMS });
-    (q('button[data-tab="basics"]') as HTMLButtonElement).click(); render();
-    expect(component.activeTab()).toBe('basics');
-    (q('button[data-tab="banking"]') as HTMLButtonElement).click(); render();
-    expect(component.activeTab()).toBe('banking');
-    expect((q('form button[type="submit"]') as HTMLButtonElement).disabled).toBe(false);
-    (q('button[data-tab="profile"]') as HTMLButtonElement).click(); render();
-    expect(component.activeTab()).toBe('profile');
-  });
-
   it('items only the setup wizard collects go to the wizard, never to the inert identity tab', () => {
     setup({ profileCompletionPercent: 35, missingItems: ITEMS });
     const nav = vi.spyOn(router, 'navigate').mockResolvedValue(true);

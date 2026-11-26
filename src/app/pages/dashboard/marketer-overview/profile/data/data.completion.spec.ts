@@ -51,16 +51,6 @@ describe('marketer data page: backend completion + missing items', () => {
     expect(el().textContent).not.toContain('اكمل التحقق من القنوات');
   });
 
-  it('the PayPal tab has one PayPal field, no bank / IBAN / holder / wallet, and no "بمراجعة" governance tag', async () => {
-    await setup({ ...base, completionPercentage: 70, missingItems: [], paypalPayoutEmail: 'm@example.com' });
-    c.setActiveTab('banking'); render();
-    const text = el().textContent || '';
-    expect((q('#afpp-email') as HTMLInputElement).value).toBe('m@example.com');
-    expect(text).toContain('يُستخدم PayPal فقط للمدفوعات على المنصة');
-    expect(text).not.toMatch(/IBAN|اسم البنك|الحساب البنكي|البيانات البنكية|صاحب الحساب|محفظة|STC Pay/);
-    for (const n of ['iban', 'bankName', 'accountHolderName', 'swiftCode']) expect(el().querySelector(`[formcontrolname="${n}"]`), n).toBeNull();
-  });
-
   it('items open the right tab: profile items -> profile, the PayPal item -> the PayPal tab', async () => {
     await setup({ ...base, completionPercentage: 30, missingItems: ITEMS });
     (q('.cbx-link[data-tab="bank"]') as HTMLButtonElement).click(); render();

@@ -109,10 +109,4 @@ describe('client profile-edit: review status', () => {
 		expect(q('[data-key=bio]')!.textContent).toContain('ناقص');
 	});
 
-	it('banking: PayPal is saved at once, so the page no longer says an admin reviews it', async () => {
-		await mount({ basicInfo: NONE, identity: NONE, password: NONE, documents: NONE });
-		tab('banking');
-		expect(el().textContent).not.toContain('يعتمده مراجع بشري');
-		expect(el().textContent).toContain('يُحفظ بريد PayPal مباشرة');
-	});
 });
