@@ -13,7 +13,7 @@ describe('marketer withdraw: PayPal only', () => {
   let c: Withdraw;
 
   const setup = async (profile: any) => {
-    const wallet = { currency: 'USD', approvedEarnings: 1000, pendingEarnings: 0, reservedWithdrawals: 0, paidWithdrawals: 0, withdrawableBalance: 1000, minimumWithdrawal: 300, paypalEmail: profile.paypalPayoutEmail, hasPaypal: !!profile.paypalPayoutEmail, withdrawBlockedReason: profile.paypalPayoutEmail ? null : 'أضف بريد PayPal لاستلام الأرباح' };
+    const wallet = { currency: 'USD', approvedEarnings: 1000, pendingEarnings: 0, reservedWithdrawals: 0, paidWithdrawals: 0, withdrawableBalance: 1000, minimumWithdrawal: 300, paypalEmail: profile.paypalPayoutEmail, hasPaypal: !!profile.paypalPayoutEmail, withdrawBlockedReason: profile.paypalPayoutEmail ? null : 'PayPal موثّق' };
     await TestBed.configureTestingModule({
       imports: [Withdraw],
       providers: [
@@ -29,12 +29,12 @@ describe('marketer withdraw: PayPal only', () => {
   const el = () => fixture.nativeElement as HTMLElement;
   afterEach(() => { fixture?.destroy(); TestBed.resetTestingModule(); });
 
-  it('no PayPal email: "أضف بريد PayPal لاستلام الأرباح" with a link to the profile; no bank / IBAN text at all', async () => {
+  it('no verified PayPal: the note says so with a link to طرق الدفع; no bank / IBAN text at all', async () => {
     await setup({ paypalPayoutEmail: null });
     expect(c.hasPaypal()).toBe(false);
     const note = el().querySelector('[data-testid="paypal-none"]')!;
-    expect(note.textContent).toContain('أضف بريد PayPal لاستلام الأرباح');
-    expect(note.querySelector('a')!.getAttribute('href')).toContain('/marketer-overview/profile/data');
+    expect(note.textContent).toContain('PayPal موثّق');
+    expect(note.querySelector('a')!.getAttribute('href')).toContain('/marketer-overview/finance/payment-methods');
     expect(el().textContent).not.toMatch(/IBAN|الحساب البنكي|اسم البنك|بنك غير محدد|محفظة/);
   });
 
@@ -50,6 +50,6 @@ describe('marketer withdraw: PayPal only', () => {
     await setup({ paypalPayoutEmail: null });
     c.withdrawForm.patchValue({ amount: 400 });
     c.submitWithdrawal();
-    expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: 'أضف بريد PayPal لاستلام الأرباح' });
+    expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: 'اربط حساب PayPal موثّق من «طرق الدفع» لتتمكن من السحب' });
   });
 });
