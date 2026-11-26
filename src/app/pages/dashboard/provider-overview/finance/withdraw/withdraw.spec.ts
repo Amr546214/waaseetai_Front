@@ -4,6 +4,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { Withdraw } from './withdraw';
 import { WithdrawalApiService } from '../../../../../core/services/withdrawal-api.service';
+import { PaymentMethodsApi } from '../../../../../core/services/payment-methods-api.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 
@@ -22,6 +23,7 @@ describe('provider withdraw (PayPal only)', () => {
         provideRouter([]),
         { provide: AuthStore, useValue: { currentUser: () => ({ accountType }) } },
         { provide: ProviderProfileService, useValue: { getProfile: () => of({ paypalPayoutEmail }) } },
+        { provide: PaymentMethodsApi, useValue: { list: () => of({ methods: paypalPayoutEmail ? [{ kind: 'PAYPAL', status: 'CONNECTED', hint: paypalPayoutEmail }] : [] }) } },
         {
           provide: WithdrawalApiService,
           useValue: {
@@ -63,15 +65,15 @@ describe('provider withdraw (PayPal only)', () => {
     expect(component.formErrors()['paypal']).toBeTruthy();
   });
 
-  it('no PayPal email: "أضف بريد PayPal لاستلام الأرباح" with a link to the profile data page; no bank / IBAN text anywhere', async () => {
+  it('no verified PayPal: the note says so with a link to طرق الدفع; no bank / IBAN text anywhere', async () => {
     await setup(null);
     const el: HTMLElement = fixture.nativeElement;
     const note = el.querySelector('[data-testid="wd-paypal-missing"]')!;
-    expect(note.textContent).toContain('أضف بريد PayPal لاستلام الأرباح');
-    expect(note.querySelector('a')!.getAttribute('href')).toContain('/provider-overview/profile/data');
+    expect(note.textContent).toContain('لا يوجد حساب PayPal موثّق');
+    expect(note.querySelector('a')!.getAttribute('href')).toContain('/provider-overview/finance/payment-methods');
     component.setAmount(100);
     component.submit();
-    expect(component.formErrors()['paypal']).toBe('أضف بريد PayPal لاستلام الأرباح');
+    expect(component.formErrors()['paypal']).toBe('لا يوجد حساب PayPal موثّق');
     expect(el.textContent).not.toMatch(/IBAN|حساب بنكي|الحساب البنكي|اسم البنك|تحويل بنكي/);
   });
 
