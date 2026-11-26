@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { New } from './new';
 import { ProviderApiService } from '../../../../../../core/services/provider-api.service';
+import { ProviderProfileService } from '../../../../../../core/services/provider-profile.service';
 import { ProviderAccessService } from '../../../../../../core/services/provider-access.service';
 
 // H3 D5: after removing a proof, picking the SAME file again did nothing, because the <input type=file> kept its value
@@ -21,6 +22,7 @@ describe('accreditation proofs: the same file can be picked again', () => {
 			providers: [
 				provideRouter([]),
 				{ provide: ProviderApiService, useValue: api },
+				{ provide: ProviderProfileService, useValue: { checkPortfolioFile: () => of({ success: true, data: { verdict: 'PASS', summaryAr: 'ok' } }) } },
 				{ provide: ProviderAccessService, useValue: { invalidate: vi.fn(), load: () => of({ state: 'PENDING_REVIEW', canAccessDashboard: false }) } },
 				{ provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
 			],
