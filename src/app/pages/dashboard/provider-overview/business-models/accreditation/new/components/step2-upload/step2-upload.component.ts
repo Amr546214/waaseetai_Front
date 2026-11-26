@@ -2,11 +2,12 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AttachmentFile } from '../../new';
+import { AiNoteComponent } from '../../../../../../../../shared/ai/ai-note.component';
 
 @Component({
   selector: 'app-step2-upload',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AiNoteComponent],
   templateUrl: './step2-upload.component.html',
 })
 export class Step2UploadComponent {
@@ -31,6 +32,8 @@ export class Step2UploadComponent {
   @Output() githubUrlChange = new EventEmitter<string>();
 
   @Input({ required: true }) attachments!: AttachmentFile[];
+  @Input() fileChecks: Record<string, { status: 'scanning' | 'valid' | 'warning' | 'refused'; message: string }> = {};
+  @Input() refusedFiles: { name: string; message: string }[] = [];
   @Output() onFileSelected = new EventEmitter<any>();
   @Output() onHandleDrop = new EventEmitter<DragEvent>();
   @Output() onRemoveAttachment = new EventEmitter<string>();

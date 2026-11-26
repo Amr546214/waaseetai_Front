@@ -1,6 +1,7 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -282,7 +283,8 @@ export class ProviderApiService {
 
 	/** Advisory AI evaluation of one of the provider's OWN samples (score / rating / notes only). POST /accreditation/samples/:id/ai-evaluate */
 	evaluateAccreditationSample(id: string): Observable<any> {
-		return this.http.post<any>(`${this.apiUrl}/accreditation/samples/${encodeURIComponent(id)}/ai-evaluate`, {});
+		// an AI reading takes several seconds: the card shows its own busy state, never the whole-page loader
+		return this.http.post<any>(`${this.apiUrl}/accreditation/samples/${encodeURIComponent(id)}/ai-evaluate`, {}, { context: new HttpContext().set(SKIP_LOADING, true) });
 	}
 
 	getAccreditationSamples(): Observable<any> {

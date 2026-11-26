@@ -9,6 +9,7 @@ import { Step1SpecialtyComponent } from './components/step1-specialty/step1-spec
 import { Step2UploadComponent } from './components/step2-upload/step2-upload.component';
 import { Step3EvaluationComponent } from './components/step3-evaluation/step3-evaluation.component';
 import { PROVIDER_ACCOUNT_ACTIONS_URL, ProviderAccessService } from '../../../../../../core/services/provider-access.service';
+import { ProviderProfileService } from '../../../../../../core/services/provider-profile.service';
 import { ProviderApiService } from '../../../../../../core/services/provider-api.service';
 
 export interface Specialty {
@@ -57,6 +58,7 @@ export interface EvaluationData {
 })
 export class New implements OnInit, OnDestroy {
 	private providerApi = inject(ProviderApiService);
+	private providerProfileService = inject(ProviderProfileService);
 	private router = inject(Router);
 	private access = inject(ProviderAccessService);
 	private route = inject(ActivatedRoute);
@@ -354,13 +356,49 @@ export class New implements OnInit, OnDestroy {
 						file
 					};
 					this.attachments.update(att => [...att, attachment]);
+					this.checkFileWithAi(file, attachment.id);
 			}
 			// the proof error follows the proof state at once (not only at the next submit); a batch with no accepted file says why
 			if (this.attachments().length > before) this.syncProofError(false);
 			else if (files.length > 0) this.setProofError(availableSlots === 0 ? 'وصلت للحد الأقصى (10 ملفات). احذف ملفًا لإضافة غيره' : 'الملف غير مقبول: ارفع صورة أو PDF أو ZIP حتى 15 ميجابايت');
 		}
 
+	/** AI reading of each staged proof file (same service as the setup wizard): a refused file is removed with the reason, an unavailable check keeps the file for the administration */
+	fileChecks = signal<Record<string, { status: 'scanning' | 'valid' | 'warning' | 'refused'; message: string }>>({});
+	private setFileCheck(id: string, v: { status: 'scanning' | 'valid' | 'warning' | 'refused'; message: string } | null) {
+		this.fileChecks.update(c => { const n = { ...c }; if (v) n[id] = v; else delete n[id]; return n; });
+	}
+	private checkFileWithAi(file: File, id: string) {
+		if (!['application/pdf', 'image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { this.setFileCheck(id, { status: 'warning', message: 'هذا النوع من الملفات لا يُقرأ آليًا؛ ستراجعه الإدارة.' }); return; }
+		if (file.size > 2_300_000) { this.setFileCheck(id, { status: 'warning', message: 'حجم الملف أكبر من حد الفحص الآلي؛ ستراجعه الإدارة.' }); return; }
+		this.setFileCheck(id, { status: 'scanning', message: 'جاري قراءة الملف بالذكاء الاصطناعي...' });
+		const specialtyName = this.getSelectedSpecialty()?.name || this.lockedSpecialtyName() || '';
+		const reader = new FileReader();
+		reader.onerror = () => this.setFileCheck(id, { status: 'warning', message: 'تعذّر قراءة الملف آليًا؛ ستراجعه الإدارة.' });
+		reader.onload = () => this.providerProfileService.checkPortfolioFile({ kind: 'PROOF', specialtyName, fileName: file.name, mimeType: file.type, file: String(reader.result) }).subscribe({
+			next: (res: any) => {
+				const v = res?.data;
+				if (!this.attachments().some(a => a.id === id)) return;
+				if (!v) { this.setFileCheck(id, null); return; }
+				const advice = v.recommendationsAr?.length ? ' ' + v.recommendationsAr.join('، ') : '';
+				if (v.verdict === 'PASS') this.setFileCheck(id, { status: 'valid', message: v.summaryAr || 'قرأ الذكاء الاصطناعي الملف وهو مناسب.' });
+				else if (v.verdict === 'FAIL') { this.setFileCheck(id, { status: 'refused', message: (v.summaryAr || 'الملف غير مناسب لهذا التخصص.') + advice + ' ارفع ملفًا آخر.' }); this.dropAttachment(id); }
+				else this.setFileCheck(id, { status: 'warning', message: v.summaryAr || 'تعذّر قراءة الملف آليًا؛ ستراجعه الإدارة.' });
+			},
+			error: () => this.setFileCheck(id, { status: 'warning', message: 'تعذّر الفحص الآلي حاليًا؛ يمكنك المتابعة وستراجع الإدارة الملف.' })
+		});
+		reader.readAsDataURL(file);
+	}
+	/** a refused file leaves the list but its reason stays visible (refused notes are kept in a separate list) */
+	refusedFiles = signal<{ name: string; message: string }[]>([]);
+	private dropAttachment(id: string) {
+		const att = this.attachments().find(a => a.id === id);
+		if (att) this.refusedFiles.update(l => [...l, { name: att.name, message: this.fileChecks()[id]?.message ?? '' }]);
+		this.removeAttachment(id);
+	}
+
 	removeAttachment(id: string) {
+		if (this.fileChecks()[id]?.status !== 'refused') this.setFileCheck(id, null);
 		const attachment = this.attachments().find(item => item.id === id);
 		if (attachment?.url.startsWith('blob:')) URL.revokeObjectURL(attachment.url);
 		this.attachments.update(att => att.filter(a => a.id !== id));

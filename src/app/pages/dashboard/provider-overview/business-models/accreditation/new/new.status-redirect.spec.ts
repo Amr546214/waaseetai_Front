@@ -4,6 +4,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { New } from './new';
 import { ProviderApiService } from '../../../../../../core/services/provider-api.service';
+import { ProviderProfileService } from '../../../../../../core/services/provider-profile.service';
 import { ProviderAccessService } from '../../../../../../core/services/provider-access.service';
 
 describe('accreditation upload: after a successful submit', () => {
@@ -15,6 +16,7 @@ describe('accreditation upload: after a successful submit', () => {
 			providers: [
 				provideRouter([]),
 				{ provide: ProviderApiService, useValue: { getPassedSpecialties: () => of({ success: true, categories: [], registered: [] }), submitAccreditationSample: () => of({ success: true, data: {} }) } },
+				{ provide: ProviderProfileService, useValue: { checkPortfolioFile: () => of({ success: true, data: { verdict: 'PASS', summaryAr: 'ok' } }) } },
 				{ provide: ProviderAccessService, useValue: { invalidate, load } },
 			],
 		});
