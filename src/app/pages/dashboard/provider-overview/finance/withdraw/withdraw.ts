@@ -227,7 +227,7 @@ export class Withdraw implements OnInit {
     }
 
     if (!this.paypalEmail()) {
-      errors['paypal'] = 'اربط حساب PayPal موثّق من «طرق الدفع» لتتمكن من السحب';
+      errors['paypal'] = 'لا توجد حسابات موثقة حتى الآن: أضف حسابًا ووثّقه من «طرق الدفع» لتتمكن من السحب';
     }
 
     this.formErrors.set(errors);

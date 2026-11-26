@@ -69,11 +69,11 @@ describe('provider withdraw (PayPal only)', () => {
     await setup(null);
     const el: HTMLElement = fixture.nativeElement;
     const note = el.querySelector('[data-testid="wd-paypal-missing"]')!;
-    expect(note.textContent).toContain('لا يوجد حساب PayPal موثّق');
+    expect(note.textContent).toContain('لا توجد حسابات موثقة حتى الآن');
     expect(note.querySelector('a')!.getAttribute('href')).toContain('/provider-overview/finance/payment-methods');
     component.setAmount(100);
     component.submit();
-    expect(component.formErrors()['paypal']).toContain('PayPal موثّق');
+    expect(component.formErrors()['paypal']).toContain('لا توجد حسابات موثقة حتى الآن');
     expect(el.textContent).not.toMatch(/IBAN|حساب بنكي|الحساب البنكي|اسم البنك|تحويل بنكي/);
   });
 

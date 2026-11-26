@@ -75,7 +75,7 @@ describe('provider withdraw: form wiring and no ready-made amounts', () => {
 		expect(submit).not.toHaveBeenCalled();
 		const target = el().querySelector('#wdPaypal') as HTMLElement;
 		expectFocused(target);
-		expect(el().querySelector('.wd-field-err[role=alert]')!.textContent).toContain('PayPal موثّق');
+		expect(el().querySelector('.wd-field-err[role=alert]')!.textContent).toContain('لا توجد حسابات موثقة حتى الآن');
 	});
 
 	it('backend 422 naming the amount lands at the amount field and keeps what was typed', async () => {

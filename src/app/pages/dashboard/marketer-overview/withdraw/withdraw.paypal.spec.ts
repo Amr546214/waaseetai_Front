@@ -33,7 +33,7 @@ describe('marketer withdraw: PayPal only', () => {
     await setup({ paypalPayoutEmail: null });
     expect(c.hasPaypal()).toBe(false);
     const note = el().querySelector('[data-testid="paypal-none"]')!;
-    expect(note.textContent).toContain('PayPal موثّق');
+    expect(note.textContent).toContain('لا توجد حسابات موثقة حتى الآن');
     expect(note.querySelector('a')!.getAttribute('href')).toContain('/marketer-overview/finance/payment-methods');
     expect(el().textContent).not.toMatch(/IBAN|الحساب البنكي|اسم البنك|بنك غير محدد|محفظة/);
   });
@@ -50,6 +50,6 @@ describe('marketer withdraw: PayPal only', () => {
     await setup({ paypalPayoutEmail: null });
     c.withdrawForm.patchValue({ amount: 400 });
     c.submitWithdrawal();
-    expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: 'اربط حساب PayPal موثّق من «طرق الدفع» لتتمكن من السحب' });
+    expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: 'لا توجد حسابات موثقة حتى الآن: أضف حسابًا ووثّقه من «طرق الدفع» لتتمكن من السحب' });
   });
 });
