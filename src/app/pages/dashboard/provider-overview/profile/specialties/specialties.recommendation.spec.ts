@@ -115,4 +115,15 @@ describe('provider specialties: the suggestion banner is real or absent', () => 
 		expect(c.canProceedToStep2()).toBe(true);
 		expect(el.querySelector('[data-testid=rec-banner]')).toBeTruthy(); // still just a suggestion; nothing was auto-selected
 	});
+
+	it('choosing a main specialty collapses the grid into one box with its name and a change button; the sub-specialties follow right under it', async () => {
+		const { el } = await mount({ success: true, data: rec() });
+		expect(el.querySelector('#spec-grid')).toBeTruthy(); expect(el.querySelector('[data-testid=chosen-spec-box]')).toBeNull();
+		c.selectSpec('c-des'); fixture.detectChanges();
+		expect(el.querySelector('#spec-grid')).toBeNull();
+		expect(el.querySelector('[data-testid=chosen-spec-name]')!.textContent!.trim()).toBe(c.selectedSpecName());
+		expect(el.querySelector('#sub-chips')).toBeTruthy();
+		(el.querySelector('[data-testid=change-spec]') as HTMLButtonElement).click(); fixture.detectChanges();
+		expect(el.querySelector('#spec-grid')).toBeTruthy(); expect(el.querySelector('[data-testid=chosen-spec-box]')).toBeNull();
+	});
 });

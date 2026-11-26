@@ -580,9 +580,18 @@ export class Specialties implements OnInit, OnDestroy {
 		return true;
 	});
 
+	/** the main-specialty grid is shown until one is chosen; then only a box with its name and a change button stays, and the sub-specialties sit right under it */
+	pickerOpen = signal(true);
+	selectedSpecName = computed(() => {
+		const id = this.selectedSpecId();
+		return id === 'other' ? 'تخصص آخر (اقتراح)' : (this.apiCategories().find(c => c.id === id)?.nameAr ?? '');
+	});
+	changeSpec() { this.searchQuery.set(''); this.pickerOpen.set(true); }
+
 	selectSpec(id: string) {
 		this.selectedSpecId.set(id);
 		this.selectedSubs.set(new Set());
+		this.pickerOpen.set(false);
 	}
 
 	toggleSub(sub: string) {
