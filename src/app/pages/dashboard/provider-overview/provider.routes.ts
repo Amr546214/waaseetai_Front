@@ -12,6 +12,7 @@ const bareTo = (target: string) => ({ queryParams }: { queryParams: Record<strin
 };
 
 export const PROVIDER_OVERVIEW_ROUTES: Routes = [
+	{ path: 'finance/payment-methods', data: { title: 'طرق الدفع', paymentRole: 'PROVIDER', allowIncompleteProfile: true }, loadComponent: () => import('../../../shared/payment-methods/payment-methods').then(m => m.PaymentMethods) },
 	{
 		path: '',
 		loadComponent: () => import('./provider-overview/provider-overview').then(m => m.ProviderOverview),

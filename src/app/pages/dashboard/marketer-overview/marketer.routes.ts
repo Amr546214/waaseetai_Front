@@ -4,6 +4,7 @@ import { marketerProfileCompleteGuard } from '../../../core/guards/marketer-prof
 import { marketerSetupGuard } from './profile/profile-setup/profile-setup.guard';
 
 const MARKETER_PAGES: Routes = [
+	{ path: 'finance/payment-methods', data: { title: 'طرق الدفع', paymentRole: 'AFFILIATE', allowIncompleteProfile: true }, loadComponent: () => import('../../../shared/payment-methods/payment-methods').then(m => m.PaymentMethods) },
 	{
 		path: '',
 		loadComponent: () => import('./marketing-broker-overview/marketing-broker-overview').then(m => m.MarketingBrokerOverview),

@@ -25,7 +25,7 @@ export function resetClientIdentityRejectedCache() { cache = null; }
 export const clientIdentityRejectedGuard: CanActivateChildFn = (_route, state) => {
 	const router = inject(Router), notify = inject(UiNotificationService), httpClient = inject(HttpClient);
 	const target = state.url.split('?')[0].replace(/^\/client-overview\/?/, '');
-	if (ALLOWED.has(target)) return true;
+	if (target === 'finance/payment-methods' || ALLOWED.has(target)) return true;
 	const user = inject(AuthStore).currentUser();
 	if (user?.accountType === AccountType.CLIENT_COMPANY) return true;
 	const uid = String(user?.id ?? '');
