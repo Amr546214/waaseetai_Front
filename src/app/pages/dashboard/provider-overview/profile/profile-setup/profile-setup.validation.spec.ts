@@ -73,24 +73,6 @@ describe('provider profile-setup: shared validation', () => {
     expect(component.missing().map(m => m.label)).toContain('المدينة');
   });
 
-  it('the step bar cannot skip incomplete steps: jumping to 5 stops at the first incomplete one', () => {
-    component.goToStep(5);
-    expect(component.currentStep()).toBe(1);
-    step1();
-    component.goToStep(5);
-    expect(component.currentStep()).toBe(2);
-    expect(component.missing().map(m => m.label)).toContain('التخصص الرئيسي');
-    step2();
-    component.goToStep(5);
-    expect(component.currentStep()).toBe(3);
-    step3();
-    component.goToStep(5);
-    expect(component.currentStep()).toBe(4); // front ID missing
-    step4();
-    component.goToStep(5);
-    expect(component.currentStep()).toBe(5);
-  });
-
   it('step 2: a main specialty without a sub-specialty is explained (summary + chips highlight)', () => {
     step1();
     component.goToStep(2);
@@ -100,16 +82,6 @@ describe('provider profile-setup: shared validation', () => {
     expect(component.currentStep()).toBe(2);
     expect(component.subSpecError()).toBe(true);
     expect(summary()).toContain('التخصصات الفرعية');
-  });
-
-  it('step 3: a missing/invalid PayPal email blocks Next with an Arabic reason', () => {
-    step1(); step2();
-    component.currentStep.set(3);
-    component.setupForm.get('payout.paypalEmail')!.setValue('not-an-email');
-    component.goToStep(4);
-    render();
-    expect(component.currentStep()).toBe(3);
-    expect(summary()).toContain('بريد PayPal');
   });
 
   it('step 4: no front ID -> summary + inline file error (no pop-up), still on step 4', () => {

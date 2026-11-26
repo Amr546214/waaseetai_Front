@@ -87,8 +87,7 @@
 			<button data-tour-tab="banking" (click)="switchTab('banking')" [class.border-cyan-500]="activeTab() === 'banking'"
 				[class.text-cyan-600]="activeTab() === 'banking'" [class.dark:text-cyan-400]="activeTab() === 'banking'"
 				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
-				بريد PayPal
-				<span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span>
+				طرق الدفع
 			</button>
 			<button data-tour-tab="security" (click)="switchTab('security')" [class.border-cyan-500]="activeTab() === 'security'"
 				[class.text-cyan-600]="activeTab() === 'security'"
@@ -848,41 +847,13 @@
 					</svg>
 				</div>
 				<div class="flex-grow">
-					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">بريد PayPal</h3>
+					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">طرق الدفع والسحب</h3>
 				</div>
 			</div>
 
-			<div class="flex items-center justify-between gap-3 mb-4 text-xs"><span class="profile-status-badge">حفظ مباشر</span><a routerLink="/client-overview/profile/requests" class="font-bold text-cyan-700 dark:text-cyan-400 hover:underline">طلباتي السابقة</a></div>
-			<!-- Form Area -->
-			<form [formGroup]="bankingForm" (ngSubmit)="saveTab('banking')">
-				<div class="flex flex-col gap-6 mb-8">
-					<!-- PayPal email (the only field) -->
-					<div class="flex flex-col gap-2">
-						<label class="text-sm font-bold text-slate-700 dark:text-slate-300" for="cl-paypal">بريد PayPal
-							<span class="text-[length:var(--font-size-small)] font-medium text-slate-400">(اختياري)</span></label>
-						<input type="email" id="cl-paypal" formControlName="paypalEmail" dir="ltr" inputmode="email" autocomplete="email" spellcheck="false"
-							placeholder="name@example.com"
-							[attr.aria-invalid]="paypalEmailMsg() ? 'true' : null"
-							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
-						@if (paypalEmailMsg(); as msg) {
-							<span class="field-error text-[length:var(--font-size-small)] font-bold " role="alert">{{ msg }}</span>
-						} @else {
-							<span class="text-[length:var(--font-size-small)] font-bold text-slate-500 dark:text-slate-400">سنستخدم هذا البريد لإرسال مستحقاتك واستردادك عبر PayPal. اتركه فارغًا لإزالته.</span>
-						}
-					</div>
-
-				</div>
-
-				<!-- Hint Text -->
-				<div class="text-center text-xs font-medium text-slate-500 dark:text-slate-400 mb-6">
-					يُستخدم PayPal فقط للمدفوعات على المنصة. يُحفظ بريد PayPal مباشرة ويمكنك تغييره في أي وقت.
-				</div>
-
-				<!-- Action -->
-				<button type="submit" [disabled]="isSaving()"
-					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">إرسال
-					حفظ بريد PayPal</button>
-			</form>
+			<p class="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-8" data-testid="payment-methods-pointer">لا تُكتب بيانات الدفع هنا. أضف حساب الاستلام ووثّقه من «طرق الدفع»، والسحب والإيداع متاحان فقط عبر الحسابات الموثقة.</p>
+			<a routerLink="/client-overview/finance/payment-methods" data-testid="go-payment-methods"
+				class="block w-full text-center py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-bold rounded-xl">الذهاب إلى طرق الدفع</a>
 		</div>
 	</div>
 	}

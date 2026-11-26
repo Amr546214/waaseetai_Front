@@ -343,18 +343,10 @@
       <!-- STEP 3: حساب PayPal لاستلام المدفوعات -->
       <div class="step-panel" [class.active]="currentStep() === 3" role="tabpanel" formGroupName="payout">
         <div class="form-sec">
-          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-wallet"></use></svg>حساب PayPal لاستلام المدفوعات</div>
+          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-wallet"></use></svg>طرق الدفع والسحب</div>
           <div class="f-grid">
-            <div class="f-wrap f-full">
-              <label class="f-lbl" for="pr-paypal">بريد PayPal <span class="ws-req" aria-hidden="true">*</span></label>
-              <input class="f-inp" id="pr-paypal" formControlName="paypalEmail" type="email" inputmode="email" autocomplete="email"
-                placeholder="name@example.com" style="direction:ltr;text-align:left" required aria-required="true"
-                [attr.aria-invalid]="paypalEmailMsg() ? 'true' : null" aria-describedby="pr-paypal-hint">
-              @if (paypalEmailMsg(); as msg) {
-                <span class="f-err" id="pr-paypal-hint" role="alert">{{ msg }}</span>
-              } @else {
-                <span class="f-hint" id="pr-paypal-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal.</span>
-              }
+            <div class="f-wrap f-full" data-testid="payout-methods-note">
+              <p class="f-hint" style="font-size:var(--font-size-label);line-height:1.9">لا تُكتب بيانات الدفع هنا. تُدار طرق السحب من تاب «طرق الدفع» في «المالية»، والسحب متاح فقط إلى حسابات موثقة. هذه الخطوة اختيارية ويمكنك المتابعة الآن.</p>
             </div>
           </div>
         </div>
@@ -799,7 +791,7 @@
           <div class="review-sec-ttl">ملخص المراحل</div>
           <div class="review-row"><span class="review-key">المرحلة 1</span><span class="review-val"><span class="rs-done">مكتمل</span> البيانات المهنية</span></div>
           <div class="review-row"><span class="review-key">المرحلة 2</span><span class="review-val"><span class="rs-done">مكتمل</span> التخصصات والمهارات <span style="font-size:var(--font-size-small);margin-inline-start:6px" class="txt-muted">{{ selectedSpecs().length > 0 ? '(' + selectedSpecs().length + ' تخصص)' : '' }}</span></span></div>
-          <div class="review-row"><span class="review-key">المرحلة 3</span><span class="review-val"><span class="rs-done">مكتمل</span> حساب PayPal</span></div>
+          <div class="review-row"><span class="review-key">المرحلة 3</span><span class="review-val"><span class="rs-done">مكتمل</span> طرق الدفع (من المالية)</span></div>
           <div class="review-row"><span class="review-key">المرحلة 4</span><span class="review-val"><span class="rs-done">مكتمل</span> المستندات الرسمية</span></div>
           <div class="review-row"><span class="review-key">المرحلة 5</span><span class="review-val"><span class="rs-done">مكتمل</span> نماذج الأعمال</span></div>
         </div>

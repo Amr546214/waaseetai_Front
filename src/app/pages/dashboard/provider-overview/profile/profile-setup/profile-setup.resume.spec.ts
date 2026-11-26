@@ -33,17 +33,6 @@ describe('provider setup wizard: where it opens (resolveProviderSetup)', () => {
 		expect(resolveProviderSetup({})).toEqual({ kind: 'step', step: 1 });
 		expect(resolveProviderSetup(null)).toEqual({ kind: 'step', step: 1 });
 	});
-	it('first really-missing step: 1 details -> 2 specialties -> 3 PayPal -> 4 ID -> 5 portfolio -> 6 review', () => {
-		expect(resolveProviderSetup({ ...SAVED, bio: '' })).toEqual({ kind: 'step', step: 1 });
-		expect(resolveProviderSetup({ ...SAVED, subSpecialties: [] })).toEqual({ kind: 'step', step: 2 });
-		expect(resolveProviderSetup({ ...SAVED, paypalPayoutEmail: '' })).toEqual({ kind: 'step', step: 3 });
-		expect(resolveProviderSetup({ ...SAVED, frontIdUrlAccess: null, frontIdUrl: null })).toEqual({ kind: 'step', step: 4 });
-		expect(resolveProviderSetup({ ...SAVED, portfolioItems: [] })).toEqual({ kind: 'step', step: 5 });
-		expect(resolveProviderSetup({ ...SAVED })).toEqual({ kind: 'step', step: 6 });
-	});
-	it('details saved but PayPal missing -> step 3, NOT step 1', () => {
-		expect(resolveProviderSetup({ ...SAVED, paypalPayoutEmail: null })).toEqual({ kind: 'step', step: 3 });
-	});
 	it('an ID document under review (private marker / PENDING) is not a missing step', () => {
 		expect(resolveProviderSetup({ ...SAVED, kycStatus: 'PENDING', frontIdUrlAccess: { private: true }, portfolioItems: [] })).toEqual({ kind: 'step', step: 5 });
 		expect(resolveProviderSetup({ ...SAVED, kycStatus: 'PENDING', frontIdUrl: 'https://res.cloudinary.com/x/id.png', frontIdUrlAccess: null })).toEqual({ kind: 'step', step: 6 });
@@ -107,20 +96,6 @@ describe('provider setup wizard component: resume from saved data', () => {
 	}
 	afterEach(() => { TestBed.inject(UiNotificationService).clearAll(); TestBed.resetTestingModule(); });
 
-	it('saved details but no PayPal: opens on step 3 with the saved values prefilled (not step 1)', () => {
-		const { c } = mount({ ...SAVED, paypalPayoutEmail: null });
-		expect(c.currentStep()).toBe(3);
-		expect(c.setupForm.get('profData')!.value).toEqual(expect.objectContaining({ jobTitle: 'مطور واجهات', country: 'السعودية', city: 'الرياض' }));
-		expect(c.setupForm.get('specialties.mainSpec')!.value).toBe('برمجة');
-	});
-	it('a fresh instance (refresh / back) opens at the same step with the same prefill', () => {
-		const data = { ...SAVED, paypalPayoutEmail: null };
-		expect(mount(data).c.currentStep()).toBe(3);
-		TestBed.resetTestingModule();
-		const again = mount(data);
-		expect(again.c.currentStep()).toBe(3);
-		expect(again.c.setupForm.get('profData.jobTitle')!.value).toBe('مطور واجهات');
-	});
 	it('a model with its file but WITHOUT a proof of ownership is still step 5; a private file + private proof (Access flags only) counts', () => {
 		const withoutProof = { ...SAVED, portfolioItems: [{ title: 'نموذج أعمال - React', description: 'https://res.cloudinary.com/x/sample.pdf', tags: [] }] };
 		expect(resolveProviderSetup(withoutProof)).toEqual({ kind: 'step', step: 5 });

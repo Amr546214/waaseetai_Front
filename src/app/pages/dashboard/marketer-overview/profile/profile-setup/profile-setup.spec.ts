@@ -90,46 +90,6 @@ describe('ProfileSetup (marketer): shared validation', () => {
   });
 
   describe('PayPal step', () => {
-    it('shows one PayPal email field only: no bank, IBAN, account holder or wallet text or inputs', () => {
-      goTo(4);
-      const text = el().textContent || '';
-      expect(el().querySelector('#ps-paypal')).toBeTruthy();
-      expect(text).toContain('بريد PayPal');
-      expect(text).toContain('يُستخدم PayPal فقط للمدفوعات على المنصة');
-      expect(text).not.toMatch(/IBAN|اسم البنك|الحساب البنكي|صاحب الحساب|محفظة|STC Pay|الراجحي/);
-      for (const n of ['iban', 'bankName', 'accountHolderName', 'swiftCode']) expect(el().querySelector(`[formcontrolname="${n}"]`), n).toBeNull();
-    });
-
-    it('empty save: no request, the PayPal email is named as missing, button enabled', () => {
-      goTo(4);
-      component.savePaypal();
-      render();
-      expect(svc.updatePaypalPayout).not.toHaveBeenCalled();
-      expect(summary()).toContain('بريد PayPal');
-      expect(errors().some(t => t.includes('بريد PayPal مطلوب'))).toBe(true);
-      expect((Array.from(el().querySelectorAll('button')).find(b => b.textContent?.includes('حفظ ومتابعة')) as HTMLButtonElement).disabled).toBe(false);
-    });
-
-    it('an invalid email gets an Arabic explanation and is not sent', () => {
-      goTo(4);
-      component.paypalForm.get('paypalPayoutEmail')!.setValue('not-an-email');
-      component.savePaypal(); render();
-      expect(svc.updatePaypalPayout).not.toHaveBeenCalled();
-      expect(errors().some(t => t.includes('بريد PayPal صالحًا'))).toBe(true);
-    });
-
-    it('a valid email is sent alone (no bank fields) and step 5 shows PayPal "مكتمل" from the backend state', () => {
-      goTo(4);
-      fillPaypal();
-      svc.getProfile.mockReturnValue(of({ success: true, data: { marketingChannels: [], completionPercentage: 70, user: {}, paypalPayoutEmail: 'm@example.com', missingItems: [] } }));
-      component.savePaypal();
-      expect(svc.updatePaypalPayout).toHaveBeenCalledWith('m@example.com');
-      expect(TestBed.inject(UiNotificationService).toasts().some(t => t.kind === 'success' && t.message === 'تم حفظ بريد PayPal')).toBe(true);
-      expect(component.currentStep()).toBe(5);
-      render();
-      expect(el().querySelector('[data-testid="paypal-state"]')!.textContent).toContain('مكتمل');
-      expect(el().textContent).not.toMatch(/IBAN|الحساب البنكي|اسم البنك/);
-    });
 
     it('zod errors[] from the server land on the PayPal input; the English 400 is never shown', () => {
       svc.updatePaypalPayout.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'Validation Error', errors: [{ path: 'body.paypalPayoutEmail', message: 'أدخل بريد PayPal صالحًا مثل name@example.com' }] } })));

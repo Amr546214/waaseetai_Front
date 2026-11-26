@@ -200,7 +200,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			subSpecs: [[], Validators.required]
 		}),
 		payout: this.fb.group({
-			paypalEmail: ['', paypalEmailValidators]
+			paypalEmail: [''] // payment methods are managed in «طرق الدفع»: nothing is typed here any more
 		}),
 		docs: this.fb.group({
 			idNumber: ['', [Validators.required, Validators.pattern(DOCUMENT_NUMBER_PATTERN)]],

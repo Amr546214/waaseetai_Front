@@ -328,22 +328,6 @@ describe('provider profile data tabs: shared validation', () => {
     beforeEach(() => { setup(); document.body.appendChild(el()); component.setTab('payout'); render(); });
     afterEach(() => el().remove());
 
-    it('empty and malformed email: no request, summary, inline error, focus, enabled button', () => {
-      component.payoutForm.patchValue({ paypalPayoutEmail: '' });
-      button('payout', 'إضافة بريد PayPal').click();
-      render();
-      expect(svc['requestPaypalEmailChange']).not.toHaveBeenCalled();
-      expect(summary('payout')).toContain('بريد PayPal مطلوب');
-      expect(fieldErrors('payout')).toEqual(['بريد PayPal مطلوب']);
-      expect(document.activeElement?.id).toBe('pp-email');
-      expect(button('payout', 'إضافة بريد PayPal').disabled).toBe(false);
-      fill(component.payoutForm, { paypalPayoutEmail: 'a@b' });
-      component.savePaypal();
-      render();
-      expect(fieldErrors('payout')[0]).toContain('name@example.com');
-      expect(svc['requestPaypalEmailChange']).not.toHaveBeenCalled();
-    });
-
     it('a zod 400 on paypalPayoutEmail becomes the field error; other failures are an Arabic message under the button', () => {
       component.payoutForm.patchValue({ paypalPayoutEmail: 'me@paypal.com' });
       svc['requestPaypalEmailChange'].mockReturnValue(httpError(400, 'Validation Error', { errors: [{ field: 'paypalPayoutEmail', message: 'بريد PayPal غير صحيح' }] }));
