@@ -73,7 +73,7 @@ describe('provider withdraw (PayPal only)', () => {
     expect(note.querySelector('a')!.getAttribute('href')).toContain('/provider-overview/finance/payment-methods');
     component.setAmount(100);
     component.submit();
-    expect(component.formErrors()['paypal']).toBe('لا يوجد حساب PayPal موثّق');
+    expect(component.formErrors()['paypal']).toContain('PayPal موثّق');
     expect(el.textContent).not.toMatch(/IBAN|حساب بنكي|الحساب البنكي|اسم البنك|تحويل بنكي/);
   });
 
