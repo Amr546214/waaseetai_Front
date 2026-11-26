@@ -48,4 +48,20 @@ describe('Specialties sample files: AI reading', () => {
 		expect(btn).toBeTruthy(); expect(btn.className).toContain('inline-flex'); expect(btn.getAttribute('style')).toContain('#C9A5F0');
 		expect(btn.querySelector('svg[data-ws-ai-mark]')).toBeTruthy(); expect(btn.firstElementChild!.tagName.toLowerCase()).toBe('svg');
 	});
+
+	it('links: a model/proof URL is validated, AI-checked (text/uri-list) and counts as attached; the tools box suggests from the specialty skills', async () => {
+		verdict = { verdict: 'PASS', summaryAr: 'الرابط مناسب' };
+		component.addModelLink('s1', 'http://insecure.example.com'); expect(component.linkErrors()['ml:s1']).toBeTruthy(); expect(component.samples()[0].publicLink).toBeUndefined();
+		component.addModelLink('s1', 'https://github.com/acme/shop'); await settle();
+		expect(component.samples()[0].publicLink).toBe('https://github.com/acme/shop'); expect(component.hasModel(component.samples()[0])).toBe(true);
+		expect(component.fileChecks()['m:s1']?.status).toBe('valid');
+		component.addProofLink('s1', 'https://github.com/acme/shop/commits'); await settle();
+		expect(component.hasProof(component.samples()[0])).toBe(true);
+		expect(posts.filter(p => String(p[0]).includes('portfolio-file-check')).every(p => p[1].mimeType === 'text/uri-list')).toBe(true);
+		component.skillPool.set(['React', 'Redux', 'Figma']);
+		component.updateTechnologies('s1', 'Vue, re');
+		expect(component.techSuggestions(component.samples()[0])).toEqual(['React', 'Redux']);
+		component.pickTechnology('s1', 'React');
+		expect(component.samples()[0].technologies).toEqual(['Vue', 'React']);
+	});
 });
