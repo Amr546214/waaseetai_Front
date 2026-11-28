@@ -1,4 +1,4 @@
-<div class="lv-page" dir="rtl">
+<div class="lv-page support-ticket-workspace" dir="rtl">
 
   <div class="lv-crumb">
     <button type="button" class="lv-crumb-link" (click)="goToHelp()">مركز المساعدة</button>
@@ -19,11 +19,20 @@
     <div class="lv-pane">
       <ng-container *ngIf="creating(); else threadTpl">
         <div class="lv-hd"><div class="lv-hd-body"><div class="lv-hd-name">تذكرة دعم جديدة</div></div></div>
-        <form class="lv-composer" (ngSubmit)="submitNew($event)">
-          <input type="text" id="ls-subject" name="subject" data-field="subject" placeholder="عنوان التذكرة" [ngModel]="newSubject()" (ngModelChange)="newSubject.set($event)" aria-label="عنوان التذكرة" />
-          <ws-select id="ls-category" name="category" data-field-wrap [options]="categories" placeholder="اختر التصنيف" ariaLabel="التصنيف" [ngModel]="newCategory()" (ngModelChange)="newCategory.set($event); edited('category')" />
-          <textarea rows="5" id="ls-description" name="description" data-field="description" placeholder="اشرح المشكلة بالتفصيل" [ngModel]="newDescription()" (ngModelChange)="newDescription.set($event)" aria-label="وصف المشكلة"></textarea>
-          <button type="submit" class="lv-btn" [disabled]="busy()">إرسال التذكرة</button>
+        <form class="support-ticket-form lv-ticket-form" (ngSubmit)="submitNew($event)" novalidate>
+          <div class="support-ticket-field">
+            <label for="ls-subject">عنوان التذكرة <span class="ws-req" aria-hidden="true">*</span></label>
+            <input type="text" id="ls-subject" name="subject" data-field="subject" placeholder="عنوان موجز يصف المشكلة" [ngModel]="newSubject()" (ngModelChange)="newSubject.set($event)" aria-required="true" required />
+          </div>
+          <div class="support-ticket-field">
+            <label for="ls-category">التصنيف <span class="ws-req" aria-hidden="true">*</span></label>
+            <ws-select id="ls-category" name="category" data-field-wrap [options]="categories" placeholder="اختر التصنيف" ariaLabel="التصنيف" [ngModel]="newCategory()" (ngModelChange)="newCategory.set($event); edited('category')" aria-required="true" required />
+          </div>
+          <div class="support-ticket-field">
+            <label for="ls-description">وصف المشكلة <span class="ws-req" aria-hidden="true">*</span></label>
+            <textarea rows="6" id="ls-description" name="description" data-field="description" placeholder="اشرح ما حدث وما الذي كنت تتوقعه، وأضف رقم الطلب إن وُجد" [ngModel]="newDescription()" (ngModelChange)="newDescription.set($event)" aria-required="true" required></textarea>
+          </div>
+          <button type="submit" class="support-primary" [disabled]="busy()">{{ busy() ? 'جارٍ الإرسال...' : 'إرسال التذكرة' }}</button>
         </form>
       </ng-container>
 

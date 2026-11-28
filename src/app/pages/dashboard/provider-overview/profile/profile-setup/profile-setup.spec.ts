@@ -42,6 +42,30 @@ describe('provider setup AI suggestions', () => {
   });
   const request = (http: HttpTestingController, kind: string) => http.expectOne(req => req.url.endsWith(`/provider/profile/suggest-${kind}`));
 
+  it('a country selected or suggested before the control is dirty supplies the time zone', () => {
+    const country = component.setupForm.get('profData.country')!;
+    const timezone = component.setupForm.get('profData.timezone')!;
+    expect(timezone.value).toBe('');
+    country.setValue('مصر');
+    expect(country.pristine).toBe(true);
+    expect(timezone.value).toBe('Africa/Cairo');
+    country.setValue('الإمارات');
+    expect(timezone.value).toBe('Asia/Dubai');
+    country.setValue('دولة أخرى');
+    expect(timezone.value).toBe('');
+  });
+
+  it('persists a user country selection with its derived IANA zone and never sends a Saudi fallback', () => {
+    const api = TestBed.inject(ProfileApiService) as any;
+    api.saveProviderPreferences = vi.fn(() => of({ success: true }));
+    component.savePreferences();
+    expect(api.saveProviderPreferences.mock.calls[0][0]).not.toHaveProperty('timezone');
+    const country = component.setupForm.get('profData.country')!;
+    country.markAsDirty();
+    country.setValue('مصر');
+    expect(api.saveProviderPreferences).toHaveBeenLastCalledWith(expect.objectContaining({ timezone: 'Africa/Cairo' }));
+  });
+
   it('setup-test result without a correct-answers count shows the score only — no invented correct/wrong boxes', () => {
     const svc = TestBed.inject(SetupTestService) as any;
     svc.result.set({ score: 73.3, total: 15, message: 'تم' });

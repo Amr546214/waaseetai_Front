@@ -34,7 +34,7 @@ describe('provider live support: composer and reply forms', () => {
 	async function openComposer(m: Awaited<ReturnType<typeof mount>>) {
 		m.c.startNew(); m.f.detectChanges(); await m.f.whenStable(); m.f.detectChanges();
 	}
-	const submitBtn = (m: Awaited<ReturnType<typeof mount>>) => m.el.querySelector('form.lv-composer button[type=submit]') as HTMLButtonElement;
+	const submitBtn = (m: Awaited<ReturnType<typeof mount>>) => m.el.querySelector('form.lv-ticket-form button[type=submit]') as HTMLButtonElement;
 
 	it('new ticket, empty submit: subject, category and description are each marked, focus on the subject, no request, no toast-only warning', async () => {
 		const m = await mount();
