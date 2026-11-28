@@ -193,7 +193,7 @@
 
           <div class="field-grp">
             <label class="field-lbl" for="username">اسم المستخدم <span class="ws-req" aria-hidden="true">*</span></label>
-            <input class="field-in" type="text" id="username" formControlName="username" placeholder="مثال: عمرو" autocomplete="nickname" maxlength="60" aria-required="true" data-testid="username-input" [attr.aria-invalid]="fieldError('username') ? 'true' : null" [attr.aria-describedby]="fieldError('username') ? 'err-username' : 'username-hint'"
+            <input class="field-in" type="text" id="username" name="name" formControlName="username" placeholder="مثال: عمرو" autocomplete="name" maxlength="60" aria-required="true" data-testid="username-input" [attr.aria-invalid]="fieldError('username') ? 'true' : null" [attr.aria-describedby]="fieldError('username') ? 'err-username' : 'username-hint'"
               [class.has-error]="basicInfoForm.get('username')?.touched && basicInfoForm.get('username')?.invalid">
             @if (fieldError('username'); as msg_username) {
             <div class="field-err" id="err-username" role="alert">
