@@ -19,7 +19,7 @@ import { genericBanner } from '../../../../shared/forms/submit-feedback';
 	standalone: true,
 	imports: [MarketerLevelTagComponent, CommonModule, FormsModule, RouterModule],
 	templateUrl: './help.html',
-	styleUrl: './help.css',
+	styleUrls: ['./help.css', '../../../../shared/support/ticket-form.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Help implements OnInit {

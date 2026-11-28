@@ -31,6 +31,7 @@ import { KycAccess, KycDocumentKey } from '../../../../../core/models/kyc-docume
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { timezoneForCountry, timezoneOptions } from '../../../../../shared/data/country-timezones';
+import { linkCountryTimezone } from '../../../../../shared/data/country-timezone-form';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { IdentityCheckService } from '../../../../../core/services/identity-check.service';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
@@ -410,7 +411,7 @@ export class Data implements OnInit {
       skillsArray: this.fb.array([]),
       languagesArray: this.fb.array([]),
       uiLanguage: ['ar'],
-      timezone: ['Asia/Riyadh'],
+      timezone: [''],
       notifyEmail: [true],
       notifySms: [true],
       notifyInApp: [true],
@@ -418,11 +419,8 @@ export class Data implements OnInit {
     });
 
     linkCountryCity(this.profileForm, this.destroyRef, { country: 'country', city: 'city', requireCity: false });
-    // the time zone follows the country the person picks (a prefilled / stored country never overrides a saved zone)
-    const countryCtl = this.profileForm.get('country');
-    countryCtl?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => {
-      const zone = timezoneForCountry(v); const tz = this.profileForm.get('timezone');
-      if (countryCtl.dirty && zone && tz && tz.value !== zone) { tz.setValue(zone); tz.markAsDirty(); }
+    linkCountryTimezone(this.profileForm, this.destroyRef, () => {
+      if (!this.isPatchingProfile) this.profileForm.get('timezone')?.markAsDirty();
     });
 
     this.profileForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
@@ -492,7 +490,7 @@ export class Data implements OnInit {
             twitterUrl: profile.twitterUrl || '',
             githubUrl: profile.githubUrl || '',
             uiLanguage: profile.preferences?.uiLanguage || 'ar',
-            timezone: profile.preferences?.timezone || 'Asia/Riyadh',
+            timezone: profile.preferences?.timezone || timezoneForCountry(normalizeCountry(profile.country)) || '',
             notifyEmail: profile.preferences?.notifyEmail ?? true,
             notifySms: profile.preferences?.notifySms ?? true,
             notifyInApp: profile.preferences?.notifyInApp ?? true,
@@ -568,7 +566,7 @@ export class Data implements OnInit {
             linkedinUrl: String(profile.linkedinUrl || '').trim(),
             githubUrl: String(profile.githubUrl || '').trim(),
             uiLanguage: profile.preferences?.uiLanguage || 'ar',
-            timezone: profile.preferences?.timezone || 'Asia/Riyadh',
+            timezone: profile.preferences?.timezone || timezoneForCountry(normalizeCountry(profile.country)) || '',
           });
 
           if (!skipDraftRestore) {
@@ -981,7 +979,7 @@ export class Data implements OnInit {
       languages: (val.languagesArray || []).filter((l: any) => l.name?.trim()).map((l: any) => `${l.name.trim()}|${l.proficiency}`),
       preferences: {
         uiLanguage: val.uiLanguage,
-        timezone: val.timezone,
+        ...(val.timezone ? { timezone: val.timezone } : {}),
         notifyEmail: val.notifyEmail,
         notifySms: val.notifySms,
         notifyInApp: val.notifyInApp,

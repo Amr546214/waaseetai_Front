@@ -26,7 +26,8 @@ import { SetupTestService, SETUP_TEST_QUESTION_COUNT, SETUP_TEST_TIME_LIMIT_MINU
 import { SPECIALTY_TEST_PASS_SCORE, SpecialtyTestComponent, type SpecialtyTestPhase, type SpecialtyTestQuestion, type SpecialtyTestResult } from '../../../../../shared/specialty-test/specialty-test.component';
 import { GeoSuggestionService } from '../../../../../shared/data/geo-suggestion';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
-import { timezoneForCountry, timezoneOptions } from '../../../../../shared/data/country-timezones';
+import { timezoneOptions } from '../../../../../shared/data/country-timezones';
+import { linkCountryTimezone } from '../../../../../shared/data/country-timezone-form';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
@@ -197,7 +198,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			portfolioUrl: [''],
 			linkedinUrl: [''],
 			websiteUrl: [''],
-			timezone: ['Asia/Riyadh']
+			timezone: ['']
 		}),
 		specialties: this.fb.group({
 			mainSpec: ['', Validators.required],
@@ -360,11 +361,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.setupForm.valueChanges.pipe(debounceTime(400), takeUntilDestroyed(this.destroyRef)).subscribe(() => this.saveDraft());
 		effect(() => { this.currentStep(); this.skillsList(); this.selectedSpecs(); this.portfolioItems(); this.avatarUrl(); untracked(() => this.saveDraft()); });
 		linkCountryCity(this.setupForm.get('profData'), this.destroyRef);
-		// the time zone follows the country the person picks (a prefilled / stored country never overrides a saved zone)
-		const countryCtl = this.setupForm.get('profData.country');
-		countryCtl?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => {
-			const zone = timezoneForCountry(v); const tz = this.setupForm.get('profData.timezone');
-			if (countryCtl.dirty && zone && tz && tz.value !== zone) { tz.setValue(zone); this.savePreferences(); }
+		linkCountryTimezone(this.setupForm.get('profData'), this.destroyRef, () => {
+			if (this.setupForm.get('profData.country')?.dirty) this.savePreferences();
 		});
 		effect(() => { if (this.currentStep() === 4) untracked(() => this.gate.load().subscribe({ error: () => { /* unknown: nothing opens */ } })); });
 		effect(() => {
@@ -454,7 +452,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					if (this.storedAvatarUrl) { this.avatarUrl.set(this.storedAvatarUrl); this.avatarPreview.set(this.storedAvatarUrl); }
 					const prefs = d.preferences && typeof d.preferences === 'object' ? d.preferences : {};
 					if (prefs.preferredCommunicationLanguage === 'ar' || prefs.preferredCommunicationLanguage === 'en') this.setupForm.get('uiLanguage')?.setValue(prefs.preferredCommunicationLanguage);
-					if (typeof prefs.timezone === 'string' && prefs.timezone) this.setupForm.get('profData.timezone')?.setValue(prefs.timezone);
 					// the setup answer carries the platform's optional-e-mail state (false = switched off by the platform)
 					this.emailDisabledByPlatform.set(d.emailEnabledByPlatform === false);
 					this.storedEmailChannel = Array.isArray(prefs.notifChannels) && prefs.notifChannels.includes('email');
@@ -489,6 +486,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							ackFinal: d.accurateAgreed || false
 						}
 					});
+					// A genuinely saved preference survives loading; otherwise the loaded country supplies the zone.
+					if (typeof prefs.timezone === 'string' && prefs.timezone) this.setupForm.get('profData.timezone')?.setValue(prefs.timezone);
 					this.geoSuggest(); // approximate hint for EMPTY country/city only
 					if (d.frontIdUrl) this.uploadedFrontId.set(d.frontIdUrl);
 					if (d.frontIdUrlAccess?.private) this.storedFrontAccess.set(d.frontIdUrlAccess);
@@ -1078,10 +1077,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		const lang = this.setupForm.get('uiLanguage')?.value === 'en' ? 'en' : 'ar';
 		this.profileApi.saveProviderPreferences({
 			preferredCommunicationLanguage: lang,
-			timezone: this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh',
+			...(this.setupForm.get('profData.timezone')?.value ? { timezone: this.setupForm.get('profData.timezone')!.value } : {}),
 			notifChannels: this.emailDisabledByPlatform() && !this.storedEmailChannel ? this.notifChannels().filter(c => c !== 'email') : this.notifChannels()
 		}).subscribe({
-			next: () => { this.prefsStatus.set('saved'); this.prefsStore.setTimezone(this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh'); },
+			next: () => { this.prefsStatus.set('saved'); this.prefsStore.setTimezone(this.setupForm.get('profData.timezone')?.value || null); },
 			error: (err) => {
 				if (isEmailDisabledError(err)) { this.emailDisabledByPlatform.set(true); this.prefsStatus.set('error'); return; }
 				this.prefsStatus.set('error');

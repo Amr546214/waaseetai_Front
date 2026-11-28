@@ -16,7 +16,7 @@ import { handleClientError, reportClientProblems } from '../../client-form-repor
 	standalone: true,
 	imports: [CommonModule, FormsModule, RouterModule, WsSelectComponent],
 	templateUrl: './new-ticket.html',
-	styleUrls: ['./new-ticket.css'],
+	styleUrls: ['./new-ticket.css', '../../../../../shared/support/ticket-form.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NewTicketComponent {

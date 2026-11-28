@@ -307,6 +307,7 @@
       <div class="pref-item">
         <div class="pref-label">المنطقة الزمنية</div>
         <select class="pref-val inp-field" formControlName="timezone" aria-label="المنطقة الزمنية" data-testid="pref-tz">
+          <option value="" disabled>اختر الدولة لتحديد التوقيت، أو اختر منطقة زمنية</option>
           @for (tz of timezoneOptions; track tz.value) { <option [value]="tz.value">{{ tz.label }}</option> }
         </select>
       </div>
