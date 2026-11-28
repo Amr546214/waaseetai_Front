@@ -28,7 +28,7 @@ const STATUS_LABELS: Record<TicketStatus, string> = {
 	standalone: true,
 	imports: [CommonModule, FormsModule, RouterModule, WsSelectComponent],
 	templateUrl: './live-support.html',
-	styleUrls: ['./live-support.css'],
+	styleUrls: ['./live-support.css', '../../../../../shared/support/ticket-form.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LiveSupportComponent implements AfterViewChecked {
