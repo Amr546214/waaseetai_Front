@@ -94,6 +94,10 @@ describe('Register', () => {
 			const form = el.querySelector('#complete-form') as HTMLFormElement;
 			expect(form.tagName).toBe('FORM');
 			expect(form.hasAttribute('autocomplete')).toBe(false);
+			const displayName = el.querySelector('#username') as HTMLInputElement;
+			expect(displayName.getAttribute('name')).toBe('name');
+			expect(displayName.getAttribute('autocomplete')).toBe('name');
+			expect(displayName.hasAttribute('readonly')).toBe(false);
 			const email = el.querySelector('#email') as HTMLInputElement;
 			const pw = el.querySelector('#password') as HTMLInputElement;
 			const pc = el.querySelector('#password-confirm') as HTMLInputElement;
@@ -102,6 +106,19 @@ describe('Register', () => {
 			expect(pw.getAttribute('autocomplete')).toBe('new-password');
 			expect(pc.getAttribute('autocomplete')).toBe('new-password');
 			for (const i of [email, pw, pc]) { expect(form.contains(i)).toBe(true); expect(i.hasAttribute('readonly')).toBe(false); }
+		});
+
+		it('accepts a browser-autofilled name that emitted no input event before validating registration', () => {
+			const { fixture, component } = setup();
+			fixture.detectChanges();
+			component.currentStep = 2;
+			fixture.componentRef.injector.get(ChangeDetectorRef).detectChanges();
+			const input = fixture.nativeElement.querySelector('#username') as HTMLInputElement;
+			input.value = 'عمرو محمود';
+			expect(component.basicInfoForm.get('username')!.value).toBe('');
+			component.nextStep();
+			expect(component.basicInfoForm.get('username')!.value).toBe('عمرو محمود');
+			expect(component.basicInfoForm.get('username')!.valid).toBe(true);
 		});
 
 		it('a brand-new Google identity sends intent "register" and switches step 2 into "complete your profile" mode, without logging in', async () => {

@@ -447,6 +447,11 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 		// Validate Step 2 and Submit Registration
 		if (this.currentStep === 2) {
+			// Native autofill may update the DOM without an input event. Read the chosen name before validating or comparing the submitted data.
+			const root: HTMLElement = this.host.nativeElement;
+			const nameInput = root.querySelector<HTMLInputElement>('#username');
+			const username = this.basicInfoForm.get('username');
+			if (nameInput?.value && username && username.value !== nameInput.value) username.setValue(nameInput.value);
 			// Back from the OTP step shows the saved data again; continuing with the SAME data only returns to the OTP step (no second request).
 			// Edited data (e.g. a mistyped e-mail) is a new registration request.
 			if ((this.accountCreated || this.proofTicket) && this.formSignature() === this.submittedSignature) { this.currentStep = 3; this.errorMessage = ''; this.cdr.markForCheck(); return; }
